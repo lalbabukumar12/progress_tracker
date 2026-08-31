@@ -330,13 +330,25 @@ export default function Leaderboard() {
                     onClick={() => handleSort('leetcodeSolved')}
                     className="py-4 px-6 cursor-pointer text-amber-400 hover:text-amber-300 transition-colors"
                   >
-                    LeetCode Solved {getSortIcon('leetcodeSolved')}
+                    LeetCode {getSortIcon('leetcodeSolved')}
                   </th>
                   <th
                     onClick={() => handleSort('codeforcesRating')}
                     className="py-4 px-6 cursor-pointer text-cyan-400 hover:text-cyan-300 transition-colors"
                   >
-                    Codeforces Rating {getSortIcon('codeforcesRating')}
+                    Codeforces {getSortIcon('codeforcesRating')}
+                  </th>
+                  <th
+                    onClick={() => handleSort('gfgScore')}
+                    className="py-4 px-6 cursor-pointer text-emerald-400 hover:text-emerald-300 transition-colors"
+                  >
+                    GFG Score {getSortIcon('gfgScore')}
+                  </th>
+                  <th
+                    onClick={() => handleSort('codechefRating')}
+                    className="py-4 px-6 cursor-pointer text-orange-400 hover:text-orange-300 transition-colors"
+                  >
+                    CodeChef {getSortIcon('codechefRating')}
                   </th>
                   <th
                     onClick={() => handleSort('githubRepos')}
@@ -397,6 +409,16 @@ export default function Leaderboard() {
                       {/* Codeforces Rating */}
                       <td className="py-4 px-6 font-mono text-cyan-400">
                         {student.codeforcesRating}
+                      </td>
+
+                      {/* GFG Score */}
+                      <td className="py-4 px-6 font-mono text-emerald-400">
+                        {student.gfgScore}
+                      </td>
+
+                      {/* CodeChef Rating */}
+                      <td className="py-4 px-6 font-mono text-orange-400">
+                        {student.codechefRating}
                       </td>
 
                       {/* GitHub Repos */}

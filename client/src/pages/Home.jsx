@@ -531,15 +531,23 @@ export default function Home() {
                     <div className="pt-3 border-t border-slate-800/80 space-y-1.5 text-xs font-mono text-slate-400">
                       <div className="flex justify-between">
                         <span>LeetCode:</span>
-                        <span className="text-amber-400 font-semibold">{student.leetcodeUsername || 'Not provided'}</span>
+                        <span className="text-amber-400 font-semibold truncate max-w-[140px] text-right">{student.leetcodeUsername || 'Not provided'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Codeforces:</span>
-                        <span className="text-cyan-400 font-semibold">{student.codeforcesUsername || 'Not provided'}</span>
+                        <span className="text-cyan-400 font-semibold truncate max-w-[140px] text-right">{student.codeforcesUsername || 'Not provided'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>GitHub:</span>
-                        <span className="text-indigo-400 font-semibold">{student.githubUsername || 'Not provided'}</span>
+                        <span className="text-indigo-400 font-semibold truncate max-w-[140px] text-right">{student.githubUsername || 'Not provided'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>GFG:</span>
+                        <span className="text-emerald-400 font-semibold truncate max-w-[140px] text-right">{student.gfgUsername || 'Not provided'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>CodeChef:</span>
+                        <span className="text-orange-400 font-semibold truncate max-w-[140px] text-right">{student.codechefUsername || 'Not provided'}</span>
                       </div>
                     </div>
                   </div>

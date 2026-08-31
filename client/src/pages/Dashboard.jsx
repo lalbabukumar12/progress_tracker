@@ -321,6 +321,8 @@ export default function Dashboard() {
   const leetcode = stats?.leetcode;
   const codeforces = stats?.codeforces;
   const github = stats?.github;
+  const gfg = stats?.gfg;
+  const codechef = stats?.codechef;
 
   // Chart 1: Codeforces Rating History Line Chart
   const cfHistory = codeforces?.ratingHistory || [];
@@ -434,7 +436,7 @@ export default function Dashboard() {
             )}
           </div>
 
-          <div className="flex items-center gap-4 text-xs font-mono text-slate-400 flex-wrap">
+          <div className="flex items-center gap-3 text-xs font-mono text-slate-400 flex-wrap">
             <span>
               LeetCode:{' '}
               {student.leetcodeUsername ? (
@@ -482,6 +484,38 @@ export default function Dashboard() {
                 </button>
               )}
             </span>
+            <span>•</span>
+            <span>
+              GFG:{' '}
+              {student.gfgUsername ? (
+                <strong className="text-emerald-400">{student.gfgUsername}</strong>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => openPlatformModal('gfg')}
+                  className="text-emerald-400/80 hover:text-emerald-300 underline underline-offset-2 decoration-dotted hover:decoration-solid transition-colors cursor-pointer font-medium"
+                  title="Click to add GeeksforGeeks username"
+                >
+                  Not provided
+                </button>
+              )}
+            </span>
+            <span>•</span>
+            <span>
+              CodeChef:{' '}
+              {student.codechefUsername ? (
+                <strong className="text-orange-400">{student.codechefUsername}</strong>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => openPlatformModal('codechef')}
+                  className="text-orange-400/80 hover:text-orange-300 underline underline-offset-2 decoration-dotted hover:decoration-solid transition-colors cursor-pointer font-medium"
+                  title="Click to add CodeChef username"
+                >
+                  Not provided
+                </button>
+              )}
+            </span>
           </div>
         </div>
 
@@ -506,8 +540,8 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* Summary Cards Grid (4 Cards) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Summary Cards Grid (6 Cards) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* LeetCode Card */}
         <div className="bg-slate-900 border border-slate-800 hover:border-amber-500/40 transition-colors rounded-2xl p-6 shadow-xl space-y-4">
           <div className="flex items-center justify-between">
@@ -590,6 +624,76 @@ export default function Dashboard() {
           )}
         </div>
 
+        {/* GeeksforGeeks Card */}
+        <div className="bg-slate-900 border border-slate-800 hover:border-emerald-500/40 transition-colors rounded-2xl p-6 shadow-xl space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">GeeksforGeeks</span>
+            <span className="text-xs text-emerald-300 font-mono bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800/40">
+              {gfg?.instituteRank ? `Inst. Rank #${gfg.instituteRank}` : 'GFG'}
+            </span>
+          </div>
+          <div>
+            {!student.gfgUsername ? (
+              <div className="py-2">
+                <button
+                  type="button"
+                  onClick={() => openPlatformModal('gfg')}
+                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 hover:border-emerald-500/50 text-xs font-semibold rounded-xl shadow-sm transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span className="text-emerald-400 font-bold">+</span> Add GFG Username
+                </button>
+              </div>
+            ) : gfg ? (
+              <div className="text-3xl font-extrabold text-slate-100">{gfg.problemsSolved ?? 0}</div>
+            ) : (
+              <div className="text-sm text-slate-500 py-2">Click "Refresh Stats" to fetch</div>
+            )}
+            <div className="text-xs text-slate-400 mt-1">Problems Solved</div>
+          </div>
+          {gfg && (
+            <div className="flex items-center justify-between pt-2 border-t border-slate-800/80 text-xs font-mono">
+              <span className="text-slate-400">Coding Score:</span>
+              <span className="text-emerald-400 font-bold">{gfg.codingScore ?? gfg.score ?? 0}</span>
+            </div>
+          )}
+        </div>
+
+        {/* CodeChef Card */}
+        <div className="bg-slate-900 border border-slate-800 hover:border-orange-500/40 transition-colors rounded-2xl p-6 shadow-xl space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-orange-400">CodeChef</span>
+            <span className="text-xs text-orange-300 font-mono bg-orange-950 px-2 py-0.5 rounded border border-orange-800/40">
+              {codechef?.stars || '1★'}
+            </span>
+          </div>
+          <div>
+            {!student.codechefUsername ? (
+              <div className="py-2">
+                <button
+                  type="button"
+                  onClick={() => openPlatformModal('codechef')}
+                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 hover:border-orange-500/50 text-xs font-semibold rounded-xl shadow-sm transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span className="text-orange-400 font-bold">+</span> Add CodeChef Username
+                </button>
+              </div>
+            ) : codechef ? (
+              <div className="text-3xl font-extrabold text-slate-100">{codechef.rating ?? 0}</div>
+            ) : (
+              <div className="text-sm text-slate-500 py-2">Click "Refresh Stats" to fetch</div>
+            )}
+            <div className="text-xs text-slate-400 mt-1">Current Rating</div>
+          </div>
+          {codechef && (
+            <div className="flex items-center justify-between pt-2 border-t border-slate-800/80 text-xs font-mono">
+              <span className="text-slate-400">Solved / Global Rank:</span>
+              <span className="text-orange-400 font-bold">
+                {codechef.problemsSolved || 0} / #{codechef.globalRank || 'N/A'}
+              </span>
+            </div>
+          )}
+        </div>
+
         {/* GitHub Card */}
         <div className="bg-slate-900 border border-slate-800 hover:border-indigo-500/40 transition-colors rounded-2xl p-6 shadow-xl space-y-4">
           <div className="flex items-center justify-between">
@@ -631,15 +735,15 @@ export default function Dashboard() {
         </div>
 
         {/* Practice Problems (this app) */}
-        <div className="bg-slate-900 border border-slate-800 hover:border-emerald-500/40 transition-colors rounded-2xl p-6 shadow-xl space-y-4">
+        <div className="bg-slate-900 border border-slate-800 hover:border-purple-500/40 transition-colors rounded-2xl p-6 shadow-xl space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">In-App IDE</span>
-            <span className="text-xs text-emerald-400 font-mono bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800/40">
+            <span className="text-xs font-bold uppercase tracking-wider text-purple-400">In-App IDE</span>
+            <span className="text-xs text-purple-400 font-mono bg-purple-950 px-2 py-0.5 rounded border border-purple-800/40">
               ✓ Solved
             </span>
           </div>
           <div>
-            <div className="text-3xl font-extrabold text-emerald-300">
+            <div className="text-3xl font-extrabold text-purple-300">
               {student.problemsSolved || 0}
             </div>
             <div className="text-xs text-slate-400 mt-1">Practice Problems (this app)</div>

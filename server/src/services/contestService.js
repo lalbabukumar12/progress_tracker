@@ -121,6 +121,85 @@ const fetchCodechefContests = async () => {
 };
 
 /**
+ * Fetch upcoming contests from GeeksforGeeks
+ * @returns {Promise<Array>}
+ */
+const fetchGfgContests = async () => {
+  const contests = [];
+  const now = Date.now();
+
+  try {
+    const res = await axios.get('https://practiceapi.geeksforgeeks.org/api/vr/events/?sub_type=upcoming', {
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        Accept: 'application/json',
+      },
+      timeout: 8000,
+    });
+
+    const upcoming = res.data?.results?.upcoming || [];
+    for (const item of upcoming) {
+      if (!item.start_time) continue;
+      const startMs = new Date(item.start_time).getTime();
+      if (isNaN(startMs) || startMs < now - 60 * 60 * 1000) continue;
+
+      const endMs = item.end_time ? new Date(item.end_time).getTime() : startMs + 90 * 60 * 1000;
+      const durationMinutes = Math.max(30, Math.round((endMs - startMs) / 60000));
+
+      contests.push({
+        platform: 'gfg',
+        contestName: item.title || item.name || 'GeeksforGeeks Contest',
+        startTime: new Date(item.start_time).toISOString(),
+        durationMinutes,
+        url: item.slug
+          ? `https://practice.geeksforgeeks.org/event/${item.slug}`
+          : 'https://practice.geeksforgeeks.org/events',
+      });
+    }
+  } catch (err) {
+    console.warn('[Contest Service] GFG events API fetch failed:', err.message);
+  }
+
+  // Also check recurring weekly contest
+  try {
+    const res = await axios.get('https://practice.geeksforgeeks.org/events/rec/gfg-weekly-coding-contest', {
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      },
+      timeout: 8000,
+    });
+
+    const html = res.data;
+    if (typeof html === 'string') {
+      const nextDataMatch = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
+      if (nextDataMatch && nextDataMatch[1]) {
+        const parsed = JSON.parse(nextDataMatch[1]);
+        const upcomingEvent = parsed.props?.pageProps?.upcomingEvent;
+        if (upcomingEvent && upcomingEvent.start_time) {
+          const startMs = new Date(upcomingEvent.start_time).getTime();
+          if (!isNaN(startMs) && startMs > now) {
+            const endMs = upcomingEvent.end_time ? new Date(upcomingEvent.end_time).getTime() : startMs + 90 * 60 * 1000;
+            contests.push({
+              platform: 'gfg',
+              contestName: upcomingEvent.title || 'GFG Weekly Coding Contest',
+              startTime: new Date(upcomingEvent.start_time).toISOString(),
+              durationMinutes: Math.max(30, Math.round((endMs - startMs) / 60000)),
+              url: 'https://practice.geeksforgeeks.org/events/rec/gfg-weekly-coding-contest',
+            });
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('[Contest Service] GFG recurring weekly contest fetch failed:', err.message);
+  }
+
+  return contests;
+};
+
+/**
  * Fetch and merge upcoming contests across all platforms with 1-hour in-memory cache
  * @param {Object} options
  * @param {boolean} [options.forceRefresh=false]
@@ -136,15 +215,15 @@ const getUpcomingContests = async ({ forceRefresh = false } = {}) => {
       cachedAt: contestCache.cachedAt,
       expiresAt: contestCache.expiresAt,
       contests: contestCache.data,
-      note: 'GFG is excluded as it has no public contest API.',
     };
   }
 
   // Fetch all platforms in parallel
-  const [cfResults, lcResults, ccResults] = await Promise.allSettled([
+  const [cfResults, lcResults, ccResults, gfgResults] = await Promise.allSettled([
     fetchCodeforcesContests(),
     fetchLeetcodeContests(),
     fetchCodechefContests(),
+    fetchGfgContests(),
   ]);
 
   const allContests = [];
@@ -157,6 +236,9 @@ const getUpcomingContests = async ({ forceRefresh = false } = {}) => {
   }
   if (ccResults.status === 'fulfilled' && Array.isArray(ccResults.value)) {
     allContests.push(...ccResults.value);
+  }
+  if (gfgResults.status === 'fulfilled' && Array.isArray(gfgResults.value)) {
+    allContests.push(...gfgResults.value);
   }
 
   // Filter out any past contests and sort ascending by startTime
@@ -176,7 +258,6 @@ const getUpcomingContests = async ({ forceRefresh = false } = {}) => {
     cachedAt: contestCache.cachedAt,
     expiresAt: contestCache.expiresAt,
     contests: validContests,
-    note: 'GFG is excluded as it has no public contest API.',
   };
 };
 

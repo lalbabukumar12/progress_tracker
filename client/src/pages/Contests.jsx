@@ -177,6 +177,14 @@ export default function Contests() {
           btnClass: 'bg-orange-600 hover:bg-orange-500 text-white font-bold',
           cardBorder: 'hover:border-orange-500/50',
         };
+      case 'gfg':
+        return {
+          name: 'GeeksforGeeks',
+          icon: '🌿',
+          tagClass: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400',
+          btnClass: 'bg-emerald-600 hover:bg-emerald-500 text-white font-bold',
+          cardBorder: 'hover:border-emerald-500/50',
+        };
       default:
         return {
           name: platform,
@@ -200,7 +208,7 @@ export default function Contests() {
             <h1 className="text-2xl md:text-3xl font-extrabold text-slate-100">Upcoming Contests</h1>
           </div>
           <p className="text-slate-400 text-sm max-w-2xl">
-            Live schedule of official programming contests aggregated across LeetCode, Codeforces, and CodeChef. Stay ahead and never miss a contest!
+            Live schedule of official programming contests aggregated across LeetCode, Codeforces, CodeChef, and GeeksforGeeks. Stay ahead and never miss a contest!
           </p>
         </div>
 
@@ -217,22 +225,23 @@ export default function Contests() {
         </div>
       </div>
 
-      {/* GFG Limitation Notice */}
-      <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 flex items-start sm:items-center gap-3 text-xs text-slate-400">
-        <span className="text-base text-amber-400 flex-shrink-0">ℹ️</span>
-        <div>
-          <span className="font-semibold text-slate-300">GeeksforGeeks Notice:</span> GeeksforGeeks currently does not provide an open public API for scheduled contests. GFG contests are excluded to maintain reliability.
-        </div>
-      </div>
-
       {/* Filter and Search Bar */}
       <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Platform Selector Buttons */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0">
           <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider mr-1">Platform:</span>
-          {['ALL', 'leetcode', 'codeforces', 'codechef'].map((p) => {
+          {['ALL', 'leetcode', 'codeforces', 'codechef', 'gfg'].map((p) => {
             const isSelected = selectedPlatform === p;
-            const label = p === 'ALL' ? 'All Platforms' : p === 'leetcode' ? 'LeetCode' : p === 'codeforces' ? 'Codeforces' : 'CodeChef';
+            const label =
+              p === 'ALL'
+                ? 'All Platforms'
+                : p === 'leetcode'
+                ? 'LeetCode'
+                : p === 'codeforces'
+                ? 'Codeforces'
+                : p === 'codechef'
+                ? 'CodeChef'
+                : 'GeeksforGeeks';
             return (
               <button
                 key={p}

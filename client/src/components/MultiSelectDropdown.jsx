@@ -39,34 +39,34 @@ export default function MultiSelectDropdown({ label, options = [], selectedValue
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full sm:w-auto px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center justify-between gap-2 border transition-all cursor-pointer ${
+        className={`w-full sm:w-auto px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center justify-between gap-2 border transition-all cursor-pointer shadow-xs ${
           isSomeSelected
-            ? 'bg-indigo-950/60 border-indigo-500/60 text-indigo-200 shadow-sm shadow-indigo-900/30'
-            : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white'
+            ? 'bg-[#E8DEFB] border-[#C9B6F0] text-[#2B2438]'
+            : 'bg-white border-[#E0D4F7] text-[#8A7FA3] hover:border-[#7C4DFF] hover:text-[#2B2438]'
         }`}
       >
         <span className="flex items-center gap-1.5 truncate">
-          <span className="text-slate-400 font-normal">{label}:</span>
+          <span className="text-[#8A7FA3] font-normal">{label}:</span>
           <span className="font-semibold">
             {isSomeSelected ? (
-              <span className="text-indigo-300">
+              <span className="text-[#7C4DFF]">
                 {selectedValues.length === 1 ? selectedValues[0] : `${selectedValues.length} selected`}
               </span>
             ) : (
-              <span className="text-slate-400 font-normal">All</span>
+              <span className="text-[#8A7FA3] font-normal">All</span>
             )}
           </span>
         </span>
 
-        <span className="text-[10px] text-slate-400 transition-transform duration-200" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+        <span className="text-[10px] text-[#8A7FA3] transition-transform duration-200" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
           ▼
         </span>
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-56 rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl z-50 p-3 space-y-2 animate-in fade-in duration-150">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800/80 text-[11px] font-medium">
-            <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">
+        <div className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-56 rounded-2xl bg-white border border-[#E0D4F7] shadow-xl z-50 p-3 space-y-2 animate-in fade-in duration-150">
+          <div className="flex items-center justify-between pb-2 border-b border-[#E0D4F7] text-[11px] font-medium">
+            <span className="text-[#8A7FA3] uppercase tracking-wider font-semibold text-[10px]">
               Select {label}
             </span>
             <div className="flex items-center gap-2">
@@ -74,7 +74,7 @@ export default function MultiSelectDropdown({ label, options = [], selectedValue
                 <button
                   type="button"
                   onClick={handleSelectAll}
-                  className="text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer"
+                  className="text-[#7C4DFF] hover:text-[#6C3CE9] font-semibold transition-colors cursor-pointer"
                 >
                   All
                 </button>
@@ -83,7 +83,7 @@ export default function MultiSelectDropdown({ label, options = [], selectedValue
                 <button
                   type="button"
                   onClick={handleClearAll}
-                  className="text-slate-400 hover:text-rose-400 transition-colors cursor-pointer"
+                  className="text-[#8A7FA3] hover:text-[#E74C3C] transition-colors cursor-pointer"
                 >
                   Clear
                 </button>
@@ -91,9 +91,9 @@ export default function MultiSelectDropdown({ label, options = [], selectedValue
             </div>
           </div>
 
-          <div className="max-h-48 overflow-y-auto space-y-1 custom-scrollbar">
+          <div className="max-h-48 overflow-y-auto space-y-1">
             {options.length === 0 ? (
-              <div className="text-slate-500 text-xs py-3 text-center italic">
+              <div className="text-[#8A7FA3] text-xs py-3 text-center italic">
                 No {label.toLowerCase()}s found
               </div>
             ) : (
@@ -105,15 +105,15 @@ export default function MultiSelectDropdown({ label, options = [], selectedValue
                     onClick={() => toggleOption(option)}
                     className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs cursor-pointer select-none transition-colors ${
                       checked
-                        ? 'bg-indigo-950/80 text-indigo-200 font-semibold'
-                        : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
+                        ? 'bg-[#E8DEFB] text-[#2B2438] font-semibold'
+                        : 'text-[#2B2438] hover:bg-[#F3EFFB]'
                     }`}
                   >
                     <input
                       type="checkbox"
                       checked={checked}
                       onChange={() => {}} // Handled by label onClick
-                      className="w-3.5 h-3.5 rounded border-slate-700 bg-slate-950 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                      className="w-3.5 h-3.5 rounded border-[#C9B6F0] bg-white text-[#7C4DFF] focus:ring-[#7C4DFF] cursor-pointer"
                     />
                     <span className="truncate">{option}</span>
                   </label>

@@ -35,50 +35,50 @@ const PLATFORMS = {
     key: 'leetcode',
     name: 'LeetCode',
     field: 'leetcodeUsername',
-    textColor: 'text-amber-400',
-    borderColor: 'border-amber-500/40',
-    hoverBorder: 'hover:border-amber-500/50',
-    dotColor: 'bg-amber-400',
+    textColor: 'text-[#D97706]',
+    borderColor: 'border-[#D97706]/40',
+    hoverBorder: 'hover:border-[#D97706]/60',
+    dotColor: 'bg-[#D97706]',
     placeholder: 'e.g. neal_wu',
   },
   codeforces: {
     key: 'codeforces',
     name: 'Codeforces',
     field: 'codeforcesUsername',
-    textColor: 'text-cyan-400',
-    borderColor: 'border-cyan-500/40',
-    hoverBorder: 'hover:border-cyan-500/50',
-    dotColor: 'bg-cyan-400',
+    textColor: 'text-[#E74C3C]',
+    borderColor: 'border-[#E74C3C]/40',
+    hoverBorder: 'hover:border-[#E74C3C]/60',
+    dotColor: 'bg-[#E74C3C]',
     placeholder: 'e.g. tourist',
   },
   github: {
     key: 'github',
     name: 'GitHub',
     field: 'githubUsername',
-    textColor: 'text-indigo-400',
-    borderColor: 'border-indigo-500/40',
-    hoverBorder: 'hover:border-indigo-500/50',
-    dotColor: 'bg-indigo-400',
+    textColor: 'text-[#2B2438]',
+    borderColor: 'border-[#E0D4F7]',
+    hoverBorder: 'hover:border-[#7C4DFF]',
+    dotColor: 'bg-[#7C4DFF]',
     placeholder: 'e.g. torvalds',
   },
   gfg: {
     key: 'gfg',
     name: 'GeeksforGeeks',
     field: 'gfgUsername',
-    textColor: 'text-emerald-400',
-    borderColor: 'border-emerald-500/40',
-    hoverBorder: 'hover:border-emerald-500/50',
-    dotColor: 'bg-emerald-400',
+    textColor: 'text-[#27AE60]',
+    borderColor: 'border-[#27AE60]/40',
+    hoverBorder: 'hover:border-[#27AE60]/60',
+    dotColor: 'bg-[#27AE60]',
     placeholder: 'e.g. geeksuser',
   },
   codechef: {
     key: 'codechef',
     name: 'CodeChef',
     field: 'codechefUsername',
-    textColor: 'text-orange-400',
-    borderColor: 'border-orange-500/40',
-    hoverBorder: 'hover:border-orange-500/50',
-    dotColor: 'bg-orange-400',
+    textColor: 'text-[#D97706]',
+    borderColor: 'border-[#D97706]/40',
+    hoverBorder: 'hover:border-[#D97706]/60',
+    dotColor: 'bg-[#D97706]',
     placeholder: 'e.g. chefuser',
   },
 };
@@ -91,7 +91,7 @@ export default function Dashboard() {
   const [error, setError] = useState(null);
 
   // Platform Connector Modal state
-  const [activePlatformModal, setActivePlatformModal] = useState(null); // 'leetcode' | 'codeforces' | 'github' | 'gfg' | 'codechef'
+  const [activePlatformModal, setActivePlatformModal] = useState(null);
   const [modalUsername, setModalUsername] = useState('');
   const [modalError, setModalError] = useState(null);
   const [savingPlatform, setSavingPlatform] = useState(false);
@@ -145,9 +145,9 @@ export default function Dashboard() {
       const data = await res.json();
       
       if (data.leetcode?.rateLimited || data.codeforces?.rateLimited || data.github?.rateLimited) {
-        toast.error('Rate limit exceeded on one or more platforms. Try again in a minute.', { id: toastId });
+        toast.error('⚠️ Rate limit exceeded on one or more platforms. Try again in a minute.', { id: toastId });
       } else {
-        toast.success('Stats refreshed successfully!', { id: toastId });
+        toast.success('✅ Stats refreshed successfully!', { id: toastId });
       }
 
       await fetchStudentData();
@@ -178,129 +178,65 @@ export default function Dashboard() {
     const platformConfig = PLATFORMS[activePlatformModal];
     if (!platformConfig) return;
 
-    const trimmed = modalUsername.trim();
-    if (!trimmed) {
-      setModalError(`Please enter a valid ${platformConfig.name} username`);
-      return;
-    }
-
-    const token = localStorage.getItem('token');
-    if (!token) {
-      setModalError('Authentication required. Please log in first.');
+    const trimmedUsername = modalUsername.trim();
+    if (!trimmedUsername) {
+      setModalError('Username cannot be empty');
       return;
     }
 
     setSavingPlatform(true);
     setModalError(null);
-
-    const targetStudentId = student?._id || studentId;
+    const toastId = toast.loading(`Saving ${platformConfig.name} username...`);
 
     try {
-      // Step 1: Trigger single-platform refresh with the new username
-      const refreshRes = await fetch(
-        `http://localhost:5000/api/students/${targetStudentId}/refresh-stats?platform=${platformConfig.key}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          body: JSON.stringify({
-            platform: platformConfig.key,
-            username: trimmed,
-            [platformConfig.field]: trimmed,
-          }),
-        }
-      );
+      const token = localStorage.getItem('token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
 
-      const refreshData = await refreshRes.json();
-
-      const platformFailed =
-        !refreshRes.ok ||
-        refreshData.summary?.failed?.some((f) => f.platform === platformConfig.key) ||
-        !refreshData[platformConfig.key] ||
-        refreshData[platformConfig.key]?.rateLimited;
-
-      if (platformFailed) {
-        let failReason = `Couldn't verify this ${platformConfig.name} username right now. Please check spelling.`;
-        const specificFail = refreshData.summary?.failed?.find((f) => f.platform === platformConfig.key)?.reason;
-        if (refreshData[platformConfig.key]?.rateLimited) {
-          failReason = `${platformConfig.name} API rate limit reached. Please wait a minute before retrying.`;
-        } else if (specificFail) {
-          failReason = specificFail;
-        }
-        // Show inline error in modal and keep old stats/username in dashboard intact
-        setModalError(failReason);
-        setSavingPlatform(false);
-        return;
-      }
-
-      // Step 2: Fetch succeeded! Commit the new username in database for this student
-      const updateRes = await fetch(`http://localhost:5000/api/students/${targetStudentId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
+      const updateRes = await fetch(`http://localhost:5000/api/students/${studentId}/platform-username`, {
+        method: 'PATCH',
+        headers,
         body: JSON.stringify({
-          [platformConfig.field]: trimmed,
+          platform: activePlatformModal,
+          username: trimmedUsername,
         }),
       });
 
-      const updateData = await updateRes.json();
+      const updatedData = await updateRes.json();
       if (!updateRes.ok) {
-        throw new Error(updateData.message || `Failed to save ${platformConfig.name} username in profile`);
+        throw new Error(updatedData.message || `Failed to update ${platformConfig.name} username`);
       }
 
-      // Also sync user's own profile via /api/students/me
-      if (token) {
-        try {
-          await fetch('http://localhost:5000/api/students/me', {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              [platformConfig.field]: trimmed,
-            }),
-          });
-        } catch (syncErr) {
-          // ignore sync err
-        }
-      }
-
-      // Step 3: Replace state with new username and freshly fetched stats without full page reload
-      setStudent((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          [platformConfig.field]: trimmed,
-          stats: {
-            ...(prev.stats || {}),
-            [platformConfig.key]: refreshData[platformConfig.key],
-          },
-          latestSnapshots: [
-            ...(prev.latestSnapshots || []).filter((s) => s.platform !== platformConfig.key),
-            ...(refreshData.snapshots || []),
-          ],
-        };
-      });
-
-      // Close modal and notify user
+      toast.success(`${platformConfig.name} username updated!`, { id: toastId });
       closePlatformModal();
-      toast.success(`${platformConfig.name} username updated`);
+      setStudent(updatedData);
+
+      const refreshToast = toast.loading(`Refreshing ${platformConfig.name} statistics...`);
+      try {
+        const refreshRes = await fetch(`http://localhost:5000/api/students/${studentId}/refresh-stats`, {
+          method: 'POST',
+          headers,
+        });
+        if (refreshRes.ok) {
+          const freshStudent = await refreshRes.json();
+          setStudent(freshStudent);
+          toast.success(`✅ ${platformConfig.name} stats refreshed!`, { id: refreshToast });
+        } else {
+          toast.dismiss(refreshToast);
+        }
+      } catch {
+        toast.dismiss(refreshToast);
+      }
     } catch (err) {
-      setModalError(err.message || `Failed to update ${platformConfig.name} username`);
+      setModalError(err.message || 'Failed to save username');
+      toast.error(err.message || 'Error saving username', { id: toastId });
     } finally {
       setSavingPlatform(false);
     }
   };
 
   useEffect(() => {
-    if (studentId) {
-      fetchStudentData();
-    }
+    fetchStudentData();
   }, [studentId]);
 
   if (loading) {
@@ -310,16 +246,16 @@ export default function Dashboard() {
   if (error || !student) {
     return (
       <div className="max-w-7xl mx-auto p-8 text-center">
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 max-w-lg mx-auto shadow-2xl space-y-4">
-          <div className="w-16 h-16 bg-rose-500/10 text-rose-400 rounded-full flex items-center justify-center mx-auto text-2xl">
+        <div className="bg-white border border-[#E0D4F7] rounded-2xl p-12 max-w-lg mx-auto shadow-xl space-y-4">
+          <div className="w-16 h-16 bg-[#F39C12]/15 text-[#F39C12] border border-[#F39C12]/30 rounded-full flex items-center justify-center mx-auto text-2xl">
             ⚠️
           </div>
-          <h2 className="text-xl font-bold text-slate-100">Student Not Found</h2>
-          <p className="text-slate-400 text-sm">{error || 'Unable to retrieve student profile information.'}</p>
+          <h2 className="text-xl font-bold text-[#2B2438]">Student Not Found</h2>
+          <p className="text-[#8A7FA3] text-sm">{error || 'Unable to retrieve student profile information.'}</p>
           <div className="pt-4">
             <Link
               to="/"
-              className="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium rounded-xl transition-colors inline-block"
+              className="px-5 py-2.5 bg-[#7C4DFF] hover:bg-[#6C3CE9] text-white text-sm font-semibold rounded-xl shadow-sm transition-colors inline-block"
             >
               ← Back to Directory
             </Link>
@@ -336,7 +272,7 @@ export default function Dashboard() {
   const gfg = stats?.gfg;
   const codechef = stats?.codechef;
 
-  // Prepare Codeforces Rating Trajectory Line Chart Data
+  // Codeforces Rating Trajectory Line Chart
   const cfHistory = codeforces?.ratingHistory || [];
   const lineChartData = {
     labels: cfHistory.map((item) => {
@@ -347,11 +283,11 @@ export default function Dashboard() {
       {
         label: 'Rating',
         data: cfHistory.map((item) => item.newRating),
-        borderColor: '#06b6d4', // Cyan
-        backgroundColor: 'rgba(6, 182, 212, 0.1)',
+        borderColor: '#7C4DFF',
+        backgroundColor: 'rgba(124, 77, 255, 0.12)',
         borderWidth: 2,
-        pointBackgroundColor: '#06b6d4',
-        pointBorderColor: '#0891b2',
+        pointBackgroundColor: '#7C4DFF',
+        pointBorderColor: '#6C3CE9',
         pointHoverRadius: 6,
         fill: true,
         tension: 0.3,
@@ -365,10 +301,10 @@ export default function Dashboard() {
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: '#0f172a',
-        titleColor: '#f8fafc',
-        bodyColor: '#94a3b8',
-        borderColor: '#334155',
+        backgroundColor: '#FFFFFF',
+        titleColor: '#2B2438',
+        bodyColor: '#8A7FA3',
+        borderColor: '#E0D4F7',
         borderWidth: 1,
         padding: 10,
         displayColors: false,
@@ -384,17 +320,17 @@ export default function Dashboard() {
     },
     scales: {
       x: {
-        grid: { color: 'rgba(51, 65, 85, 0.3)' },
-        ticks: { color: '#64748b', font: { size: 10 }, maxTicksLimit: 8 },
+        grid: { color: 'rgba(224, 212, 247, 0.6)' },
+        ticks: { color: '#8A7FA3', font: { size: 10 }, maxTicksLimit: 8 },
       },
       y: {
-        grid: { color: 'rgba(51, 65, 85, 0.3)' },
-        ticks: { color: '#64748b', font: { size: 10 } },
+        grid: { color: 'rgba(224, 212, 247, 0.6)' },
+        ticks: { color: '#8A7FA3', font: { size: 10 } },
       },
     },
   };
 
-  // Prepare LeetCode Breakdown Doughnut Chart Data
+  // LeetCode Breakdown Doughnut Chart
   const doughnutData = {
     labels: ['Easy', 'Medium', 'Hard'],
     datasets: [
@@ -404,8 +340,8 @@ export default function Dashboard() {
           leetcode?.mediumSolved || 0,
           leetcode?.hardSolved || 0,
         ],
-        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'], // Emerald, Amber, Rose
-        borderColor: '#0f172a',
+        backgroundColor: ['#27AE60', '#F39C12', '#E74C3C'], // Green, Amber, Red
+        borderColor: '#FFFFFF',
         borderWidth: 3,
         hoverOffset: 4,
       },
@@ -420,22 +356,23 @@ export default function Dashboard() {
       legend: {
         position: 'bottom',
         labels: {
-          color: '#94a3b8',
+          color: '#2B2438',
           font: { size: 11 },
           padding: 12,
           usePointStyle: true,
         },
       },
       tooltip: {
-        backgroundColor: '#0f172a',
-        borderColor: '#334155',
+        backgroundColor: '#FFFFFF',
+        borderColor: '#E0D4F7',
         borderWidth: 1,
-        bodyColor: '#f8fafc',
+        bodyColor: '#2B2438',
+        titleColor: '#2B2438',
       },
     },
   };
 
-  // Prepare GitHub Repositories Bar Chart Data
+  // GitHub Repositories Bar Chart
   const topRepos = github?.topRepos || [];
   const barData = {
     labels: topRepos.map((r) => r.name),
@@ -443,8 +380,8 @@ export default function Dashboard() {
       {
         label: 'Stars',
         data: topRepos.map((r) => r.stars),
-        backgroundColor: 'rgba(99, 102, 241, 0.8)', // Indigo
-        hoverBackgroundColor: '#6366f1',
+        backgroundColor: 'rgba(124, 77, 255, 0.85)',
+        hoverBackgroundColor: '#6C3CE9',
         borderRadius: 6,
       },
     ],
@@ -456,21 +393,21 @@ export default function Dashboard() {
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: '#0f172a',
-        borderColor: '#334155',
+        backgroundColor: '#FFFFFF',
+        borderColor: '#E0D4F7',
         borderWidth: 1,
-        titleColor: '#f8fafc',
-        bodyColor: '#94a3b8',
+        titleColor: '#2B2438',
+        bodyColor: '#8A7FA3',
       },
     },
     scales: {
       x: {
         grid: { display: false },
-        ticks: { color: '#64748b', font: { size: 10 } },
+        ticks: { color: '#8A7FA3', font: { size: 10 } },
       },
       y: {
-        grid: { color: 'rgba(51, 65, 85, 0.3)' },
-        ticks: { color: '#64748b', font: { size: 10 }, stepSize: 1 },
+        grid: { color: 'rgba(224, 212, 247, 0.6)' },
+        ticks: { color: '#8A7FA3', font: { size: 10 }, stepSize: 1 },
       },
     },
   };
@@ -478,41 +415,47 @@ export default function Dashboard() {
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-8">
       {/* Header Profile Section */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/5 rounded-full blur-3xl -z-0 pointer-events-none" />
+      <div className="bg-white border border-[#E0D4F7] rounded-2xl p-6 md:p-8 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#7C4DFF]/5 rounded-full blur-3xl -z-0 pointer-events-none" />
 
         <div className="space-y-3 z-10">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-100 tracking-tight">
+            <h1 className="text-2xl md:text-3xl font-extrabold text-[#2B2438] tracking-tight">
               {student.name}
             </h1>
-            <span className="px-2.5 py-1 bg-indigo-950 text-indigo-300 border border-indigo-800/60 rounded-md text-xs font-mono font-medium">
+            <span className="px-2.5 py-1 bg-[#FAF8FE] text-[#2B2438] border border-[#E0D4F7] rounded-md text-xs font-mono font-medium">
               {student.rollNumber}
             </span>
           </div>
 
-          <div className="flex items-center gap-4 text-xs font-medium text-slate-400 flex-wrap">
-            {student.college && <span>🏫 {student.college}</span>}
-            {student.branch && <span>📚 {student.branch}</span>}
-            {student.section && <span>🏷️ Sec {student.section}</span>}
+          <div className="flex items-center gap-3 text-xs font-medium text-[#8A7FA3] flex-wrap">
+            {student.college && (
+              <span className="px-2.5 py-0.5 rounded-lg bg-[#FAF8FE] border border-[#E0D4F7]">{student.college}</span>
+            )}
+            {student.branch && (
+              <span className="px-2.5 py-0.5 rounded-lg bg-[#FAF8FE] border border-[#E0D4F7]">{student.branch}</span>
+            )}
+            {student.section && (
+              <span className="px-2.5 py-0.5 rounded-lg bg-[#FAF8FE] border border-[#E0D4F7]">Sec {student.section}</span>
+            )}
             {student.compositeScore !== undefined && (
-              <span className="bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded font-mono text-[11px] font-bold">
-                ⭐ Composite: {student.compositeScore}
+              <span className="bg-[#27AE60]/12 text-[#27AE60] border border-[#27AE60]/30 px-2.5 py-0.5 rounded-lg font-mono text-[11px] font-bold">
+                Composite: {student.compositeScore} pts
               </span>
             )}
           </div>
 
-          {/* Header Row Platform Usernames with Edit Pencil Icons */}
-          <div className="flex items-center gap-3 text-xs font-mono text-slate-400 flex-wrap">
+          {/* Header Row Platform Usernames with Edit Icons */}
+          <div className="flex items-center gap-3 text-xs font-mono text-[#8A7FA3] flex-wrap pt-1">
             <span>
               LeetCode:{' '}
               {student.leetcodeUsername ? (
                 <span className="inline-flex items-center gap-1">
-                  <strong className="text-amber-400">{student.leetcodeUsername}</strong>
+                  <strong className="text-[#D97706]">{student.leetcodeUsername}</strong>
                   <button
                     type="button"
                     onClick={() => openPlatformModal('leetcode')}
-                    className="text-slate-500 hover:text-amber-400 transition-colors p-0.5 rounded hover:bg-slate-800 cursor-pointer"
+                    className="text-[#8A7FA3] hover:text-[#D97706] transition-colors p-0.5 rounded hover:bg-[#FAF8FE] cursor-pointer"
                     title="Edit LeetCode username"
                   >
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -524,22 +467,22 @@ export default function Dashboard() {
                 <button
                   type="button"
                   onClick={() => openPlatformModal('leetcode')}
-                  className="text-amber-400/80 hover:text-amber-300 underline underline-offset-2 decoration-dotted hover:decoration-solid transition-colors cursor-pointer font-medium"
+                  className="text-[#D97706]/80 hover:text-[#D97706] underline underline-offset-2 decoration-dotted hover:decoration-solid transition-colors cursor-pointer font-medium"
                 >
                   Not provided
                 </button>
               )}
             </span>
-            <span>•</span>
+            <span className="text-[#E0D4F7]">•</span>
             <span>
               Codeforces:{' '}
               {student.codeforcesUsername ? (
                 <span className="inline-flex items-center gap-1">
-                  <strong className="text-cyan-400">{student.codeforcesUsername}</strong>
+                  <strong className="text-[#E74C3C]">{student.codeforcesUsername}</strong>
                   <button
                     type="button"
                     onClick={() => openPlatformModal('codeforces')}
-                    className="text-slate-500 hover:text-cyan-400 transition-colors p-0.5 rounded hover:bg-slate-800 cursor-pointer"
+                    className="text-[#8A7FA3] hover:text-[#E74C3C] transition-colors p-0.5 rounded hover:bg-[#FAF8FE] cursor-pointer"
                     title="Edit Codeforces username"
                   >
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -551,22 +494,22 @@ export default function Dashboard() {
                 <button
                   type="button"
                   onClick={() => openPlatformModal('codeforces')}
-                  className="text-cyan-400/80 hover:text-cyan-300 underline underline-offset-2 decoration-dotted hover:decoration-solid transition-colors cursor-pointer font-medium"
+                  className="text-[#E74C3C]/80 hover:text-[#E74C3C] underline underline-offset-2 decoration-dotted hover:decoration-solid transition-colors cursor-pointer font-medium"
                 >
                   Not provided
                 </button>
               )}
             </span>
-            <span>•</span>
+            <span className="text-[#E0D4F7]">•</span>
             <span>
               GitHub:{' '}
               {student.githubUsername ? (
                 <span className="inline-flex items-center gap-1">
-                  <strong className="text-indigo-400">{student.githubUsername}</strong>
+                  <strong className="text-[#2B2438]">{student.githubUsername}</strong>
                   <button
                     type="button"
                     onClick={() => openPlatformModal('github')}
-                    className="text-slate-500 hover:text-indigo-400 transition-colors p-0.5 rounded hover:bg-slate-800 cursor-pointer"
+                    className="text-[#8A7FA3] hover:text-[#2B2438] transition-colors p-0.5 rounded hover:bg-[#FAF8FE] cursor-pointer"
                     title="Edit GitHub username"
                   >
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -578,22 +521,22 @@ export default function Dashboard() {
                 <button
                   type="button"
                   onClick={() => openPlatformModal('github')}
-                  className="text-indigo-400/80 hover:text-indigo-300 underline underline-offset-2 decoration-dotted hover:decoration-solid transition-colors cursor-pointer font-medium"
+                  className="text-[#8A7FA3] hover:text-[#2B2438] underline underline-offset-2 decoration-dotted hover:decoration-solid transition-colors cursor-pointer font-medium"
                 >
                   Not provided
                 </button>
               )}
             </span>
-            <span>•</span>
+            <span className="text-[#E0D4F7]">•</span>
             <span>
               GFG:{' '}
               {student.gfgUsername ? (
                 <span className="inline-flex items-center gap-1">
-                  <strong className="text-emerald-400">{student.gfgUsername}</strong>
+                  <strong className="text-[#27AE60]">{student.gfgUsername}</strong>
                   <button
                     type="button"
                     onClick={() => openPlatformModal('gfg')}
-                    className="text-slate-500 hover:text-emerald-400 transition-colors p-0.5 rounded hover:bg-slate-800 cursor-pointer"
+                    className="text-[#8A7FA3] hover:text-[#27AE60] transition-colors p-0.5 rounded hover:bg-[#FAF8FE] cursor-pointer"
                     title="Edit GeeksforGeeks username"
                   >
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -605,22 +548,22 @@ export default function Dashboard() {
                 <button
                   type="button"
                   onClick={() => openPlatformModal('gfg')}
-                  className="text-emerald-400/80 hover:text-emerald-300 underline underline-offset-2 decoration-dotted hover:decoration-solid transition-colors cursor-pointer font-medium"
+                  className="text-[#27AE60]/80 hover:text-[#27AE60] underline underline-offset-2 decoration-dotted hover:decoration-solid transition-colors cursor-pointer font-medium"
                 >
                   Not provided
                 </button>
               )}
             </span>
-            <span>•</span>
+            <span className="text-[#E0D4F7]">•</span>
             <span>
               CodeChef:{' '}
               {student.codechefUsername ? (
                 <span className="inline-flex items-center gap-1">
-                  <strong className="text-orange-400">{student.codechefUsername}</strong>
+                  <strong className="text-[#D97706]">{student.codechefUsername}</strong>
                   <button
                     type="button"
                     onClick={() => openPlatformModal('codechef')}
-                    className="text-slate-500 hover:text-orange-400 transition-colors p-0.5 rounded hover:bg-slate-800 cursor-pointer"
+                    className="text-[#8A7FA3] hover:text-[#D97706] transition-colors p-0.5 rounded hover:bg-[#FAF8FE] cursor-pointer"
                     title="Edit CodeChef username"
                   >
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -632,7 +575,7 @@ export default function Dashboard() {
                 <button
                   type="button"
                   onClick={() => openPlatformModal('codechef')}
-                  className="text-orange-400/80 hover:text-orange-300 underline underline-offset-2 decoration-dotted hover:decoration-solid transition-colors cursor-pointer font-medium"
+                  className="text-[#D97706]/80 hover:text-[#D97706] underline underline-offset-2 decoration-dotted hover:decoration-solid transition-colors cursor-pointer font-medium"
                 >
                   Not provided
                 </button>
@@ -644,7 +587,7 @@ export default function Dashboard() {
         <button
           onClick={handleRefreshStats}
           disabled={refreshing}
-          className="z-10 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-950 text-white font-medium text-sm rounded-xl shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed w-full md:w-auto"
+          className="z-10 px-5 py-2.5 bg-[#7C4DFF] hover:bg-[#6C3CE9] disabled:opacity-50 text-white font-semibold text-sm rounded-xl shadow-md shadow-[#7C4DFF]/25 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed w-full md:w-auto"
         >
           {refreshing ? (
             <>
@@ -665,15 +608,15 @@ export default function Dashboard() {
       {/* Summary Cards Grid (6 Cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* LeetCode Card */}
-        <div className="bg-slate-900 border border-slate-800 hover:border-amber-500/40 transition-colors rounded-2xl p-6 shadow-xl space-y-4">
+        <div className="bg-white border border-[#E0D4F7] hover:border-[#D97706]/60 transition-colors rounded-2xl p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-amber-400">LeetCode</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-[#D97706]">LeetCode</span>
               {student.leetcodeUsername && (
                 <button
                   type="button"
                   onClick={() => openPlatformModal('leetcode')}
-                  className="text-slate-500 hover:text-amber-400 transition-colors p-1 rounded hover:bg-slate-800/80 cursor-pointer"
+                  className="text-[#8A7FA3] hover:text-[#D97706] transition-colors p-1 rounded hover:bg-[#FAF8FE] cursor-pointer"
                   title="Edit LeetCode username"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -682,7 +625,7 @@ export default function Dashboard() {
                 </button>
               )}
             </div>
-            <span className="text-xs text-slate-500 font-mono">
+            <span className="text-xs text-[#8A7FA3] font-mono">
               {leetcode?.ranking ? `Ranking #${leetcode.ranking}` : 'N/A'}
             </span>
           </div>
@@ -692,48 +635,48 @@ export default function Dashboard() {
                 <button
                   type="button"
                   onClick={() => openPlatformModal('leetcode')}
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 hover:border-amber-500/50 text-xs font-semibold rounded-xl shadow-sm transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                  className="px-3 py-1.5 bg-[#FAF8FE] hover:bg-[#E8DEFB] text-[#2B2438] border border-[#E0D4F7] hover:border-[#D97706]/60 text-xs font-semibold rounded-xl shadow-xs transition-all inline-flex items-center gap-1.5 cursor-pointer"
                 >
-                  <span className="text-amber-400 font-bold">+</span> Connect LeetCode
+                  <span className="text-[#D97706] font-bold">+</span> Connect LeetCode
                 </button>
               </div>
             ) : leetcode?.rateLimited ? (
-              <div className="text-xs text-amber-400 py-1">Rate limited. Try later.</div>
+              <div className="text-xs text-[#D97706] py-1">⚠️ Rate limited. Try later.</div>
             ) : leetcode ? (
-              <div className="text-3xl font-extrabold text-slate-100">{leetcode.totalSolved}</div>
+              <div className="text-3xl font-extrabold text-[#2B2438]">{leetcode.totalSolved}</div>
             ) : (
-              <div className="text-sm text-slate-500 py-2">Click "Refresh All"</div>
+              <div className="text-sm text-[#8A7FA3] py-2">Click "Refresh All"</div>
             )}
-            <div className="text-xs text-slate-400 mt-1">Total Solved</div>
+            <div className="text-xs text-[#8A7FA3] mt-1">Total Solved</div>
           </div>
           {leetcode && !leetcode.rateLimited && (
-            <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800/80 text-center text-xs font-mono">
-              <div className="bg-emerald-950/40 border border-emerald-800/40 p-2 rounded-lg">
-                <div className="text-emerald-400 font-bold">{leetcode.easySolved}</div>
-                <div className="text-slate-400 text-[10px]">Easy</div>
+            <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#EBE3F8] text-center text-xs font-mono">
+              <div className="bg-[#FAF8FE] border border-[#27AE60]/30 p-2 rounded-lg">
+                <div className="text-[#27AE60] font-bold">{leetcode.easySolved}</div>
+                <div className="text-[#8A7FA3] text-[10px]">Easy</div>
               </div>
-              <div className="bg-amber-950/40 border border-amber-800/40 p-2 rounded-lg">
-                <div className="text-amber-400 font-bold">{leetcode.mediumSolved}</div>
-                <div className="text-slate-400 text-[10px]">Medium</div>
+              <div className="bg-[#FAF8FE] border border-[#F39C12]/30 p-2 rounded-lg">
+                <div className="text-[#F39C12] font-bold">{leetcode.mediumSolved}</div>
+                <div className="text-[#8A7FA3] text-[10px]">Medium</div>
               </div>
-              <div className="bg-rose-950/40 border border-rose-800/40 p-2 rounded-lg">
-                <div className="text-rose-400 font-bold">{leetcode.hardSolved}</div>
-                <div className="text-slate-400 text-[10px]">Hard</div>
+              <div className="bg-[#FAF8FE] border border-[#E74C3C]/30 p-2 rounded-lg">
+                <div className="text-[#E74C3C] font-bold">{leetcode.hardSolved}</div>
+                <div className="text-[#8A7FA3] text-[10px]">Hard</div>
               </div>
             </div>
           )}
         </div>
 
         {/* Codeforces Card */}
-        <div className="bg-slate-900 border border-slate-800 hover:border-cyan-500/40 transition-colors rounded-2xl p-6 shadow-xl space-y-4">
+        <div className="bg-white border border-[#E0D4F7] hover:border-[#E74C3C]/60 transition-colors rounded-2xl p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-cyan-400">Codeforces</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-[#E74C3C]">Codeforces</span>
               {student.codeforcesUsername && (
                 <button
                   type="button"
                   onClick={() => openPlatformModal('codeforces')}
-                  className="text-slate-500 hover:text-cyan-400 transition-colors p-1 rounded hover:bg-slate-800/80 cursor-pointer"
+                  className="text-[#8A7FA3] hover:text-[#E74C3C] transition-colors p-1 rounded hover:bg-[#FAF8FE] cursor-pointer"
                   title="Edit Codeforces username"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -742,7 +685,7 @@ export default function Dashboard() {
                 </button>
               )}
             </div>
-            <span className="text-xs text-cyan-300 font-medium capitalize bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800/40">
+            <span className="text-xs text-[#E74C3C] font-semibold capitalize bg-[#FAF8FE] px-2 py-0.5 rounded border border-[#E74C3C]/30">
               {codeforces?.rank || 'Unrated'}
             </span>
           </div>
@@ -752,38 +695,38 @@ export default function Dashboard() {
                 <button
                   type="button"
                   onClick={() => openPlatformModal('codeforces')}
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 hover:border-cyan-500/50 text-xs font-semibold rounded-xl shadow-sm transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                  className="px-3 py-1.5 bg-[#FAF8FE] hover:bg-[#E8DEFB] text-[#2B2438] border border-[#E0D4F7] hover:border-[#E74C3C]/60 text-xs font-semibold rounded-xl shadow-xs transition-all inline-flex items-center gap-1.5 cursor-pointer"
                 >
-                  <span className="text-cyan-400 font-bold">+</span> Connect Codeforces
+                  <span className="text-[#E74C3C] font-bold">+</span> Connect Codeforces
                 </button>
               </div>
             ) : codeforces?.rateLimited ? (
-              <div className="text-xs text-amber-400 py-1">Rate limited. Try later.</div>
+              <div className="text-xs text-[#F39C12] py-1">⚠️ Rate limited. Try later.</div>
             ) : codeforces ? (
-              <div className="text-3xl font-extrabold text-slate-100">{codeforces.rating}</div>
+              <div className="text-3xl font-extrabold text-[#2B2438]">{codeforces.rating}</div>
             ) : (
-              <div className="text-sm text-slate-500 py-2">Click "Refresh All"</div>
+              <div className="text-sm text-[#8A7FA3] py-2">Click "Refresh All"</div>
             )}
-            <div className="text-xs text-slate-400 mt-1">Current Rating</div>
+            <div className="text-xs text-[#8A7FA3] mt-1">Current Rating</div>
           </div>
           {codeforces && !codeforces.rateLimited && (
-            <div className="flex items-center justify-between pt-2 border-t border-slate-800/80 text-xs font-mono">
-              <span className="text-slate-400">Max Rating:</span>
-              <span className="text-cyan-400 font-bold">{codeforces.maxRating}</span>
+            <div className="flex items-center justify-between pt-2 border-t border-[#EBE3F8] text-xs font-mono">
+              <span className="text-[#8A7FA3]">Max Rating:</span>
+              <span className="text-[#E74C3C] font-bold">{codeforces.maxRating}</span>
             </div>
           )}
         </div>
 
         {/* GeeksforGeeks Card */}
-        <div className="bg-slate-900 border border-slate-800 hover:border-emerald-500/40 transition-colors rounded-2xl p-6 shadow-xl space-y-4">
+        <div className="bg-white border border-[#E0D4F7] hover:border-[#27AE60]/60 transition-colors rounded-2xl p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">GeeksforGeeks</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-[#27AE60]">GeeksforGeeks</span>
               {student.gfgUsername && (
                 <button
                   type="button"
                   onClick={() => openPlatformModal('gfg')}
-                  className="text-slate-500 hover:text-emerald-400 transition-colors p-1 rounded hover:bg-slate-800/80 cursor-pointer"
+                  className="text-[#8A7FA3] hover:text-[#27AE60] transition-colors p-1 rounded hover:bg-[#FAF8FE] cursor-pointer"
                   title="Edit GeeksforGeeks username"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -792,7 +735,7 @@ export default function Dashboard() {
                 </button>
               )}
             </div>
-            <span className="text-xs text-emerald-300 font-mono bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800/40">
+            <span className="text-xs text-[#27AE60] font-mono bg-[#FAF8FE] px-2 py-0.5 rounded border border-[#27AE60]/40 font-semibold">
               {gfg?.instituteRank ? `Inst. Rank #${gfg.instituteRank}` : 'GFG'}
             </span>
           </div>
@@ -802,36 +745,36 @@ export default function Dashboard() {
                 <button
                   type="button"
                   onClick={() => openPlatformModal('gfg')}
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 hover:border-emerald-500/50 text-xs font-semibold rounded-xl shadow-sm transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                  className="px-3 py-1.5 bg-[#FAF8FE] hover:bg-[#E8DEFB] text-[#2B2438] border border-[#E0D4F7] hover:border-[#27AE60]/60 text-xs font-semibold rounded-xl shadow-xs transition-all inline-flex items-center gap-1.5 cursor-pointer"
                 >
-                  <span className="text-emerald-400 font-bold">+</span> Connect GFG
+                  <span className="text-[#27AE60] font-bold">+</span> Connect GFG
                 </button>
               </div>
             ) : gfg ? (
-              <div className="text-3xl font-extrabold text-slate-100">{gfg.problemsSolved ?? 0}</div>
+              <div className="text-3xl font-extrabold text-[#2B2438]">{gfg.problemsSolved ?? 0}</div>
             ) : (
-              <div className="text-sm text-slate-500 py-2">Click "Refresh All"</div>
+              <div className="text-sm text-[#8A7FA3] py-2">Click "Refresh All"</div>
             )}
-            <div className="text-xs text-slate-400 mt-1">Problems Solved</div>
+            <div className="text-xs text-[#8A7FA3] mt-1">Problems Solved</div>
           </div>
           {gfg && (
-            <div className="flex items-center justify-between pt-2 border-t border-slate-800/80 text-xs font-mono">
-              <span className="text-slate-400">Coding Score:</span>
-              <span className="text-emerald-400 font-bold">{gfg.codingScore ?? gfg.score ?? 0}</span>
+            <div className="flex items-center justify-between pt-2 border-t border-[#EBE3F8] text-xs font-mono">
+              <span className="text-[#8A7FA3]">Coding Score:</span>
+              <span className="text-[#27AE60] font-bold">{gfg.codingScore ?? gfg.score ?? 0}</span>
             </div>
           )}
         </div>
 
         {/* CodeChef Card */}
-        <div className="bg-slate-900 border border-slate-800 hover:border-orange-500/40 transition-colors rounded-2xl p-6 shadow-xl space-y-4">
+        <div className="bg-white border border-[#E0D4F7] hover:border-[#D97706]/60 transition-colors rounded-2xl p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-orange-400">CodeChef</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-[#D97706]">CodeChef</span>
               {student.codechefUsername && (
                 <button
                   type="button"
                   onClick={() => openPlatformModal('codechef')}
-                  className="text-slate-500 hover:text-orange-400 transition-colors p-1 rounded hover:bg-slate-800/80 cursor-pointer"
+                  className="text-[#8A7FA3] hover:text-[#D97706] transition-colors p-1 rounded hover:bg-[#FAF8FE] cursor-pointer"
                   title="Edit CodeChef username"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -840,7 +783,7 @@ export default function Dashboard() {
                 </button>
               )}
             </div>
-            <span className="text-xs text-orange-300 font-mono bg-orange-950 px-2 py-0.5 rounded border border-orange-800/40">
+            <span className="text-xs text-[#D97706] font-mono bg-[#FAF8FE] px-2 py-0.5 rounded border border-[#D97706]/40 font-semibold">
               {codechef?.stars || '1★'}
             </span>
           </div>
@@ -850,22 +793,22 @@ export default function Dashboard() {
                 <button
                   type="button"
                   onClick={() => openPlatformModal('codechef')}
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 hover:border-orange-500/50 text-xs font-semibold rounded-xl shadow-sm transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                  className="px-3 py-1.5 bg-[#FAF8FE] hover:bg-[#E8DEFB] text-[#2B2438] border border-[#E0D4F7] hover:border-[#D97706]/60 text-xs font-semibold rounded-xl shadow-xs transition-all inline-flex items-center gap-1.5 cursor-pointer"
                 >
-                  <span className="text-orange-400 font-bold">+</span> Connect CodeChef
+                  <span className="text-[#D97706] font-bold">+</span> Connect CodeChef
                 </button>
               </div>
             ) : codechef ? (
-              <div className="text-3xl font-extrabold text-slate-100">{codechef.rating ?? 0}</div>
+              <div className="text-3xl font-extrabold text-[#2B2438]">{codechef.rating ?? 0}</div>
             ) : (
-              <div className="text-sm text-slate-500 py-2">Click "Refresh All"</div>
+              <div className="text-sm text-[#8A7FA3] py-2">Click "Refresh All"</div>
             )}
-            <div className="text-xs text-slate-400 mt-1">Current Rating</div>
+            <div className="text-xs text-[#8A7FA3] mt-1">Current Rating</div>
           </div>
           {codechef && (
-            <div className="flex items-center justify-between pt-2 border-t border-slate-800/80 text-xs font-mono">
-              <span className="text-slate-400">Solved / Rank:</span>
-              <span className="text-orange-400 font-bold">
+            <div className="flex items-center justify-between pt-2 border-t border-[#EBE3F8] text-xs font-mono">
+              <span className="text-[#8A7FA3]">Solved / Rank:</span>
+              <span className="text-[#D97706] font-bold">
                 {codechef.problemsSolved || 0} / #{codechef.globalRank || 'N/A'}
               </span>
             </div>
@@ -873,15 +816,15 @@ export default function Dashboard() {
         </div>
 
         {/* GitHub Card */}
-        <div className="bg-slate-900 border border-slate-800 hover:border-indigo-500/40 transition-colors rounded-2xl p-6 shadow-xl space-y-4">
+        <div className="bg-white border border-[#E0D4F7] hover:border-[#7C4DFF] transition-colors rounded-2xl p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">GitHub</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-[#2B2438]">GitHub</span>
               {student.githubUsername && (
                 <button
                   type="button"
                   onClick={() => openPlatformModal('github')}
-                  className="text-slate-500 hover:text-indigo-400 transition-colors p-1 rounded hover:bg-slate-800/80 cursor-pointer"
+                  className="text-[#8A7FA3] hover:text-[#2B2438] transition-colors p-1 rounded hover:bg-[#FAF8FE] cursor-pointer"
                   title="Edit GitHub username"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -890,7 +833,7 @@ export default function Dashboard() {
                 </button>
               )}
             </div>
-            <span className="text-xs text-slate-500 font-mono">{github?.followers || 0} Followers</span>
+            <span className="text-xs text-[#8A7FA3] font-mono">{github?.followers || 0} Followers</span>
           </div>
           <div>
             {!student.githubUsername ? (
@@ -898,26 +841,26 @@ export default function Dashboard() {
                 <button
                   type="button"
                   onClick={() => openPlatformModal('github')}
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 hover:border-indigo-500/50 text-xs font-semibold rounded-xl shadow-sm transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                  className="px-3 py-1.5 bg-[#FAF8FE] hover:bg-[#E8DEFB] text-[#2B2438] border border-[#E0D4F7] hover:border-[#7C4DFF] text-xs font-semibold rounded-xl shadow-xs transition-all inline-flex items-center gap-1.5 cursor-pointer"
                 >
-                  <span className="text-indigo-400 font-bold">+</span> Connect GitHub
+                  <span className="text-[#7C4DFF] font-bold">+</span> Connect GitHub
                 </button>
               </div>
             ) : github?.rateLimited ? (
-              <div className="text-xs text-amber-400 py-1">Rate limited. Try later.</div>
+              <div className="text-xs text-[#F39C12] py-1">⚠️ Rate limited. Try later.</div>
             ) : github ? (
-              <div className="text-3xl font-extrabold text-slate-100">{github.publicRepos}</div>
+              <div className="text-3xl font-extrabold text-[#2B2438]">{github.publicRepos}</div>
             ) : (
-              <div className="text-sm text-slate-500 py-2">Click "Refresh All"</div>
+              <div className="text-sm text-[#8A7FA3] py-2">Click "Refresh All"</div>
             )}
-            <div className="text-xs text-slate-400 mt-1">Public Repos</div>
+            <div className="text-xs text-[#8A7FA3] mt-1">Public Repos</div>
           </div>
           {github && !github.rateLimited && (
-            <div className="pt-2 border-t border-slate-800/80 text-xs space-y-1">
-              <div className="text-slate-400 font-medium text-[11px] uppercase tracking-wider">Top Repos:</div>
+            <div className="pt-2 border-t border-[#EBE3F8] text-xs space-y-1">
+              <div className="text-[#8A7FA3] font-medium text-[11px] uppercase tracking-wider">Top Repos:</div>
               <div className="flex flex-wrap gap-1.5">
                 {(github.topRepos || []).slice(0, 3).map((repo, i) => (
-                  <span key={i} className="px-2 py-0.5 bg-slate-950 border border-slate-800 text-slate-300 rounded font-mono text-[11px]">
+                  <span key={i} className="px-2 py-0.5 bg-[#FAF8FE] border border-[#E0D4F7] text-[#2B2438] rounded font-mono text-[11px]">
                     {repo.name} ({repo.stars}★)
                   </span>
                 ))}
@@ -926,22 +869,22 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Practice Problems (this app) */}
-        <div className="bg-slate-900 border border-slate-800 hover:border-purple-500/40 transition-colors rounded-2xl p-6 shadow-xl space-y-4">
+        {/* Practice Problems (In-App IDE) */}
+        <div className="bg-white border border-[#E0D4F7] hover:border-[#27AE60]/60 transition-colors rounded-2xl p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-purple-400">In-App IDE</span>
-            <span className="text-xs text-purple-400 font-mono bg-purple-950 px-2 py-0.5 rounded border border-purple-800/40">
-              ✓ Solved
+            <span className="text-xs font-bold uppercase tracking-wider text-[#27AE60]">In-App IDE</span>
+            <span className="text-xs text-[#27AE60] font-mono bg-[#FAF8FE] px-2 py-0.5 rounded border border-[#27AE60]/40 font-semibold">
+              Solved
             </span>
           </div>
           <div>
-            <div className="text-3xl font-extrabold text-purple-300">
+            <div className="text-3xl font-extrabold text-[#27AE60]">
               {student.problemsSolved || 0}
             </div>
-            <div className="text-xs text-slate-400 mt-1">Practice Problems</div>
+            <div className="text-xs text-[#8A7FA3] mt-1">Practice Problems</div>
           </div>
-          <div className="pt-2 border-t border-slate-800/80 text-xs text-slate-400">
-            Solved in integrated IDE.
+          <div className="pt-2 border-t border-[#EBE3F8] text-xs text-[#8A7FA3]">
+            Solved in integrated Code IDE.
           </div>
         </div>
       </div>
@@ -949,10 +892,10 @@ export default function Dashboard() {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Codeforces Line Chart */}
-        <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+        <div className="lg:col-span-2 bg-white border border-[#E0D4F7] rounded-2xl p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-slate-200 text-sm">Codeforces Rating Trajectory</h3>
-            <span className="text-xs text-slate-500 font-mono">
+            <h3 className="font-semibold text-[#2B2438] text-sm">Codeforces Rating Trajectory</h3>
+            <span className="text-xs text-[#8A7FA3] font-mono">
               {cfHistory.length} Contests
             </span>
           </div>
@@ -960,7 +903,7 @@ export default function Dashboard() {
             {codeforces && !codeforces.rateLimited ? (
               <Line data={lineChartData} options={lineChartOptions} />
             ) : (
-              <div className="h-full flex items-center justify-center text-slate-500 text-sm">
+              <div className="h-full flex items-center justify-center text-[#8A7FA3] text-sm">
                 {!student.codeforcesUsername 
                   ? 'No Codeforces username configured' 
                   : codeforces?.rateLimited
@@ -972,13 +915,13 @@ export default function Dashboard() {
         </div>
 
         {/* LeetCode Doughnut Chart */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-          <h3 className="font-semibold text-slate-200 text-sm">LeetCode Breakdown</h3>
+        <div className="bg-white border border-[#E0D4F7] rounded-2xl p-6 shadow-sm space-y-4">
+          <h3 className="font-semibold text-[#2B2438] text-sm">LeetCode Breakdown</h3>
           <div className="h-64 relative flex items-center justify-center">
             {leetcode && !leetcode.rateLimited && leetcode.totalSolved > 0 ? (
               <Doughnut data={doughnutData} options={doughnutOptions} />
             ) : (
-              <div className="text-slate-500 text-sm text-center">
+              <div className="text-[#8A7FA3] text-sm text-center">
                 {!student.leetcodeUsername 
                   ? 'No LeetCode username configured' 
                   : leetcode?.rateLimited
@@ -990,13 +933,13 @@ export default function Dashboard() {
         </div>
 
         {/* GitHub Bar Chart */}
-        <div className="lg:col-span-3 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-          <h3 className="font-semibold text-slate-200 text-sm">GitHub Top Repository Stars</h3>
+        <div className="lg:col-span-3 bg-white border border-[#E0D4F7] rounded-2xl p-6 shadow-sm space-y-4">
+          <h3 className="font-semibold text-[#2B2438] text-sm">GitHub Top Repository Stars</h3>
           <div className="h-64 relative">
             {github && !github.rateLimited ? (
               <Bar data={barData} options={barOptions} />
             ) : (
-              <div className="h-full flex items-center justify-center text-slate-500 text-sm">
+              <div className="h-full flex items-center justify-center text-[#8A7FA3] text-sm">
                 {!student.githubUsername 
                   ? 'No GitHub username configured' 
                   : github?.rateLimited
@@ -1011,16 +954,16 @@ export default function Dashboard() {
       {/* Lightweight Platform Connector Modal */}
       {activePlatformModal && (
         <div
-          className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-[#2B2438]/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           onClick={(e) => {
             if (e.target === e.currentTarget) closePlatformModal();
           }}
         >
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-5">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="bg-white border border-[#E0D4F7] rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-5 text-[#2B2438]">
+            <div className="flex items-center justify-between border-b border-[#E0D4F7] pb-3">
               <div className="flex items-center gap-2.5">
-                <span className={`w-2.5 h-2.5 rounded-full ${PLATFORMS[activePlatformModal]?.dotColor || 'bg-indigo-400'}`} />
-                <h3 className="text-base font-bold text-slate-100">
+                <span className={`w-2.5 h-2.5 rounded-full ${PLATFORMS[activePlatformModal]?.dotColor || 'bg-[#7C4DFF]'}`} />
+                <h3 className="text-base font-bold text-[#2B2438]">
                   {student?.[PLATFORMS[activePlatformModal]?.field]
                     ? `Edit ${PLATFORMS[activePlatformModal]?.name} Username`
                     : `Connect ${PLATFORMS[activePlatformModal]?.name}`}
@@ -1030,7 +973,7 @@ export default function Dashboard() {
                 type="button"
                 onClick={closePlatformModal}
                 disabled={savingPlatform}
-                className="text-slate-400 hover:text-slate-200 text-lg cursor-pointer disabled:opacity-50 transition-colors"
+                className="text-[#8A7FA3] hover:text-[#2B2438] text-lg cursor-pointer disabled:opacity-50 transition-colors"
               >
                 ✕
               </button>
@@ -1038,7 +981,7 @@ export default function Dashboard() {
 
             <form onSubmit={handleSavePlatform} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-[#2B2438] mb-1.5">
                   Enter your {PLATFORMS[activePlatformModal]?.name} username
                 </label>
                 <input
@@ -1051,10 +994,10 @@ export default function Dashboard() {
                     if (modalError) setModalError(null);
                   }}
                   placeholder={PLATFORMS[activePlatformModal]?.placeholder}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                  className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] text-sm focus:outline-none focus:border-[#7C4DFF] transition-colors"
                 />
                 {modalError && (
-                  <div className="mt-2.5 text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-xl p-3 flex items-start gap-2.5">
+                  <div className="mt-2.5 text-xs text-[#D97706] bg-[#F39C12]/10 border border-[#F39C12]/30 rounded-xl p-3 flex items-start gap-2.5">
                     <span className="shrink-0 text-sm">⚠️</span>
                     <span>{modalError}</span>
                   </div>
@@ -1066,14 +1009,14 @@ export default function Dashboard() {
                   type="button"
                   onClick={closePlatformModal}
                   disabled={savingPlatform}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-300 font-medium text-xs rounded-xl transition-colors cursor-pointer"
+                  className="px-4 py-2 bg-[#FAF8FE] hover:bg-[#E8DEFB] disabled:opacity-50 text-[#8A7FA3] hover:text-[#2B2438] font-semibold text-xs rounded-xl border border-[#E0D4F7] transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={savingPlatform}
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-900 text-white font-semibold text-xs rounded-xl shadow-md shadow-indigo-600/20 transition-all flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed"
+                  className="px-5 py-2 bg-[#7C4DFF] hover:bg-[#6C3CE9] disabled:opacity-50 text-white font-semibold text-xs rounded-xl shadow-md shadow-[#7C4DFF]/20 transition-all flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed"
                 >
                   {savingPlatform ? (
                     <>
@@ -1095,31 +1038,30 @@ export default function Dashboard() {
   );
 }
 
-// Skeleton loader component
 function DashboardSkeleton() {
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-8 animate-pulse">
-      <div className="h-28 bg-slate-900 border border-slate-800 rounded-2xl p-6 flex justify-between items-center">
+      <div className="h-28 bg-white border border-[#E0D4F7] rounded-2xl p-6 flex justify-between items-center shadow-sm">
         <div className="space-y-3">
-          <div className="h-6 w-48 bg-slate-800 rounded" />
-          <div className="h-4 w-64 bg-slate-800/60 rounded" />
+          <div className="h-6 w-48 bg-[#E8DEFB] rounded" />
+          <div className="h-4 w-64 bg-[#FAF8FE] rounded" />
         </div>
-        <div className="h-10 w-32 bg-slate-800 rounded-xl" />
+        <div className="h-10 w-32 bg-[#E8DEFB] rounded-xl" />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-40 bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
-            <div className="h-4 w-24 bg-slate-800 rounded" />
-            <div className="h-8 w-16 bg-slate-800 rounded" />
-            <div className="h-4 w-full bg-slate-800/40 rounded" />
+          <div key={i} className="h-40 bg-white border border-[#E0D4F7] rounded-2xl p-6 space-y-4 shadow-sm">
+            <div className="h-4 w-24 bg-[#E8DEFB] rounded" />
+            <div className="h-8 w-16 bg-[#FAF8FE] rounded" />
+            <div className="h-4 w-full bg-[#FAF8FE] rounded" />
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 h-72 bg-slate-900 border border-slate-800 rounded-2xl p-6" />
-        <div className="h-72 bg-slate-900 border border-slate-800 rounded-2xl p-6" />
+        <div className="lg:col-span-2 h-72 bg-white border border-[#E0D4F7] rounded-2xl p-6 shadow-sm" />
+        <div className="h-72 bg-white border border-[#E0D4F7] rounded-2xl p-6 shadow-sm" />
       </div>
     </div>
   );

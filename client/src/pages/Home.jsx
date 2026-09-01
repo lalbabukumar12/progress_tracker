@@ -38,7 +38,6 @@ export default function Home() {
     codechefUsername: '',
   });
 
-
   const [formData, setFormData] = useState({
     name: '',
     rollNumber: '',
@@ -59,8 +58,7 @@ export default function Home() {
       try {
         const u = JSON.parse(saved);
         setCurrentUser(u);
-        console.log('CurrentUser isAdmin:', u?.isAdmin);
-      } catch (e) {
+      } catch {
         setCurrentUser(null);
       }
     } else {
@@ -279,7 +277,6 @@ export default function Home() {
   // Client-side filtering logic
   const filteredStudents = useMemo(() => {
     return students.filter((student) => {
-      // 1. Search input filter (case-insensitive, partial match on name/displayName)
       if (searchQuery.trim()) {
         const q = searchQuery.trim().toLowerCase();
         const nameMatch = (student.name || '').toLowerCase().includes(q);
@@ -287,19 +284,16 @@ export default function Home() {
         if (!nameMatch && !displayMatch) return false;
       }
 
-      // 2. Branch dropdown (OR logic within selected branches)
       if (selectedBranches.length > 0) {
         const sBranch = (student.branch || '').trim();
         if (!selectedBranches.includes(sBranch)) return false;
       }
 
-      // 3. Section dropdown (OR logic within selected sections)
       if (selectedSections.length > 0) {
         const sSection = (student.section || '').trim();
         if (!selectedSections.includes(sSection)) return false;
       }
 
-      // 4. College dropdown (OR logic within selected colleges)
       if (selectedColleges.length > 0) {
         const sCollege = (student.college || '').trim();
         if (!selectedColleges.includes(sCollege)) return false;
@@ -322,31 +316,30 @@ export default function Home() {
     setSelectedColleges([]);
   };
 
-
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-8 relative">
 
       {/* Floating Action Bar for Bulk Selection (Admin Only) */}
       {isAdmin && selectedIds.length > 0 && (
-        <div className="sticky top-20 z-30 bg-indigo-950 border border-indigo-800 text-slate-100 p-4 rounded-2xl shadow-2xl flex items-center justify-between gap-4 animate-fade-in">
+        <div className="sticky top-20 z-30 bg-white border-2 border-[#7C4DFF] text-[#2B2438] p-4 rounded-2xl shadow-xl flex items-center justify-between gap-4 animate-fade-in">
           <div className="flex items-center gap-3 text-sm font-semibold">
-            <span className="w-2.5 h-2.5 rounded-full bg-indigo-400 animate-ping" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#7C4DFF] animate-ping" />
             <span>{selectedIds.length} student profile(s) selected</span>
           </div>
 
           <div className="flex items-center gap-4 text-xs font-semibold">
             <button
               onClick={handleClearSelection}
-              className="text-slate-400 hover:text-slate-200 underline cursor-pointer"
+              className="text-[#8A7FA3] hover:text-[#2B2438] underline cursor-pointer"
             >
               Clear selection
             </button>
 
             <button
               onClick={() => setDeleteTarget({ isBulk: true, count: selectedIds.length })}
-              className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-1.5"
+              className="px-4 py-2 bg-[#E74C3C] hover:bg-[#DC2626] text-white rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-1.5 font-bold"
             >
-              🗑️ Delete Selected ({selectedIds.length})
+              <span>❗</span> Delete Selected ({selectedIds.length})
             </button>
           </div>
         </div>
@@ -354,16 +347,16 @@ export default function Home() {
 
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-100">
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#2B2438]">
             Progress Tracker Directory
           </h1>
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="text-[#8A7FA3] text-sm mt-1">
             Monitor competitive programming and GitHub progress across registered students.
           </p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm rounded-xl transition-all shadow-lg shadow-indigo-600/20 cursor-pointer flex items-center justify-center gap-2 w-full sm:w-auto"
+          className="px-4 py-2.5 bg-[#7C4DFF] hover:bg-[#6C3CE9] text-white font-semibold text-sm rounded-xl transition-all shadow-md shadow-[#7C4DFF]/25 cursor-pointer flex items-center justify-center gap-2 w-full sm:w-auto"
         >
           <span>+</span> Add Student
         </button>
@@ -371,20 +364,20 @@ export default function Home() {
 
       {/* Student List Grid */}
       <section className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E0D4F7] pb-3">
           <div className="flex items-center gap-3">
-            <h2 className="text-lg font-bold text-slate-200">Registered Students</h2>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-medium bg-slate-800 text-indigo-300 border border-slate-700/60">
+            <h2 className="text-lg font-bold text-[#2B2438]">Registered Students</h2>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-[#E8DEFB] text-[#7C4DFF] border border-[#C9B6F0]">
               Showing {filteredStudents.length} of {students.length} students
             </span>
           </div>
           {isAdmin && students.length > 0 && (
-            <span className="text-xs text-indigo-400 font-mono">Admin Mode Enabled</span>
+            <span className="text-xs text-[#7C4DFF] font-mono font-semibold">Admin Mode Enabled</span>
           )}
         </div>
 
         {/* Filter Bar */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg flex flex-col md:flex-row md:items-center gap-3 justify-between">
+        <div className="bg-white border border-[#E0D4F7] rounded-2xl p-4 shadow-sm flex flex-col md:flex-row md:items-center gap-3 justify-between">
           {/* Search Input */}
           <div className="flex-1 relative">
             <input
@@ -392,14 +385,18 @@ export default function Home() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Filter by student name..."
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-8 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 text-xs transition-colors"
+              className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl pl-9 pr-8 py-2 text-[#2B2438] placeholder-[#8A7FA3] focus:outline-none focus:border-[#7C4DFF] text-xs transition-colors"
             />
-            <span className="absolute left-3 top-2.5 text-slate-500 text-xs">🔍</span>
+            <span className="absolute left-3 top-2.5 text-[#8A7FA3]">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </span>
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-2 text-slate-400 hover:text-slate-200 text-xs cursor-pointer"
+                className="absolute right-3 top-2 text-[#8A7FA3] hover:text-[#2B2438] text-xs cursor-pointer"
               >
                 ✕
               </button>
@@ -431,7 +428,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={handleClearFilters}
-                className="px-3.5 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-950/80 border border-rose-900/60 transition-all cursor-pointer flex items-center gap-1"
+                className="px-3.5 py-2 rounded-xl text-xs font-semibold text-[#2B2438] hover:text-[#7C4DFF] bg-[#E8DEFB] hover:bg-[#DED0F7] border border-[#C9B6F0] transition-all cursor-pointer flex items-center gap-1 shadow-xs"
               >
                 <span>✕</span> Clear Filters
               </button>
@@ -442,27 +439,31 @@ export default function Home() {
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-48 bg-slate-900 border border-slate-800 rounded-2xl" />
+              <div key={i} className="h-48 bg-white border border-[#E0D4F7] rounded-2xl shadow-sm" />
             ))}
           </div>
         ) : students.length === 0 ? (
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center space-y-3 shadow-xl">
-            <div className="text-slate-500 font-medium">No students registered yet</div>
-            <p className="text-slate-400 text-xs max-w-sm mx-auto">
+          <div className="bg-white border border-[#E0D4F7] rounded-2xl p-12 text-center space-y-3 shadow-sm">
+            <div className="text-[#2B2438] font-semibold">No students registered yet</div>
+            <p className="text-[#8A7FA3] text-xs max-w-sm mx-auto">
               Click "+ Add Student" to register a student with LeetCode, Codeforces, and GitHub handles.
             </p>
           </div>
         ) : filteredStudents.length === 0 ? (
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center space-y-4 shadow-xl">
-            <div className="text-4xl">🔍</div>
-            <div className="text-slate-200 font-semibold text-base">No students match these filters</div>
-            <p className="text-slate-400 text-xs max-w-sm mx-auto">
+          <div className="bg-white border border-[#E0D4F7] rounded-2xl p-12 text-center space-y-4 shadow-sm">
+            <div className="w-12 h-12 rounded-2xl bg-[#E8DEFB] border border-[#C9B6F0] text-[#7C4DFF] flex items-center justify-center mx-auto">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <div className="text-[#2B2438] font-semibold text-base">No students match these filters</div>
+            <p className="text-[#8A7FA3] text-xs max-w-sm mx-auto">
               Try adjusting your search query or dropdown filter selections to find matching student profiles.
             </p>
             <button
               type="button"
               onClick={handleClearFilters}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs rounded-xl transition-all shadow-md cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#7C4DFF] hover:bg-[#6C3CE9] text-white font-semibold text-xs rounded-xl transition-all shadow-md shadow-[#7C4DFF]/25 cursor-pointer"
             >
               <span>✕</span> Clear Filters
             </button>
@@ -470,12 +471,11 @@ export default function Home() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredStudents.map((student) => {
-
               return (
                 <div
                   key={student._id}
-                  className={`bg-slate-900 border rounded-2xl p-6 shadow-xl space-y-4 flex flex-col justify-between transition-all duration-300 relative ${
-                    selectedIds.includes(student._id) ? 'border-indigo-500 ring-2 ring-indigo-500/20 bg-indigo-950/20' : 'border-slate-800 hover:border-slate-700'
+                  className={`bg-white border rounded-2xl p-6 shadow-sm space-y-4 flex flex-col justify-between transition-all duration-300 relative hover:shadow-md ${
+                    selectedIds.includes(student._id) ? 'border-[#7C4DFF] ring-2 ring-[#7C4DFF]/25 bg-[#FAF8FE]' : 'border-[#E0D4F7] hover:border-[#C9B6F0]'
                   } ${deletingIds.includes(student._id) ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'}`}
                 >
                   <div className="space-y-2">
@@ -486,17 +486,17 @@ export default function Home() {
                             type="checkbox"
                             checked={selectedIds.includes(student._id)}
                             onChange={() => handleSelectToggle(student._id)}
-                            className="w-4 h-4 rounded border-slate-700 text-indigo-600 focus:ring-indigo-500 bg-slate-950 cursor-pointer"
+                            className="w-4 h-4 rounded border-[#C9B6F0] text-[#7C4DFF] focus:ring-[#7C4DFF] bg-white cursor-pointer"
                           />
                         )}
 
-                        <h3 className="text-lg font-bold text-slate-100 truncate">
+                        <h3 className="text-lg font-bold text-[#2B2438] truncate">
                           {student.displayName || student.name}
                         </h3>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono bg-slate-800 text-slate-300 px-2 py-0.5 rounded shrink-0">
+                        <span className="text-xs font-mono bg-[#FAF8FE] text-[#2B2438] border border-[#E0D4F7] px-2 py-0.5 rounded shrink-0">
                           {student.rollNumber}
                         </span>
                         
@@ -504,50 +504,52 @@ export default function Home() {
                           <button
                             onClick={() => openEditModal(student)}
                             title="Edit Student Profile"
-                            className="text-slate-500 hover:text-indigo-400 p-1 transition-colors cursor-pointer text-sm"
+                            className="text-[#8A7FA3] hover:text-[#7C4DFF] p-1 transition-colors cursor-pointer text-sm"
                           >
-                            ✏️
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
                           </button>
                         )}
                         <button
                           onClick={() => setDeleteTarget({ isBulk: false, singleStudent: student, count: 1 })}
                           title="Delete Student Profile"
-                          className="text-rose-500 hover:text-rose-400 p-1 transition-colors cursor-pointer text-sm"
+                          className="text-[#E74C3C] hover:text-[#DC2626] p-1 transition-colors cursor-pointer text-xs font-bold"
                         >
-                          🗑️
+                          ❗
                         </button>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
+                    <div className="flex items-center justify-between text-xs text-[#8A7FA3] font-medium">
                       <span>{student.college || 'College N/A'}</span>
                       {(student.branch || student.section) && (
-                        <span className="bg-indigo-950/80 text-indigo-300 border border-indigo-800/60 text-[10px] font-mono px-2 py-0.5 rounded">
+                        <span className="bg-[#E8DEFB] text-[#2B2438] border border-[#C9B6F0] text-[10px] font-mono px-2 py-0.5 rounded font-semibold">
                           {[student.branch, student.section ? `Sec ${student.section}` : null].filter(Boolean).join(' • ')}
                         </span>
                       )}
                     </div>
 
-                    <div className="pt-3 border-t border-slate-800/80 space-y-1.5 text-xs font-mono text-slate-400">
+                    <div className="pt-3 border-t border-[#EBE3F8] space-y-1.5 text-xs font-mono text-[#8A7FA3]">
                       <div className="flex justify-between">
                         <span>LeetCode:</span>
-                        <span className="text-amber-400 font-semibold truncate max-w-[140px] text-right">{student.leetcodeUsername || 'Not provided'}</span>
+                        <span className="text-[#F39C12] font-semibold truncate max-w-[140px] text-right">{student.leetcodeUsername || 'Not provided'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Codeforces:</span>
-                        <span className="text-cyan-400 font-semibold truncate max-w-[140px] text-right">{student.codeforcesUsername || 'Not provided'}</span>
+                        <span className="text-[#E74C3C] font-semibold truncate max-w-[140px] text-right">{student.codeforcesUsername || 'Not provided'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>GitHub:</span>
-                        <span className="text-indigo-400 font-semibold truncate max-w-[140px] text-right">{student.githubUsername || 'Not provided'}</span>
+                        <span className="text-[#2B2438] font-semibold truncate max-w-[140px] text-right">{student.githubUsername || 'Not provided'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>GFG:</span>
-                        <span className="text-emerald-400 font-semibold truncate max-w-[140px] text-right">{student.gfgUsername || 'Not provided'}</span>
+                        <span className="text-[#27AE60] font-semibold truncate max-w-[140px] text-right">{student.gfgUsername || 'Not provided'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>CodeChef:</span>
-                        <span className="text-orange-400 font-semibold truncate max-w-[140px] text-right">{student.codechefUsername || 'Not provided'}</span>
+                        <span className="text-[#F39C12] font-semibold truncate max-w-[140px] text-right">{student.codechefUsername || 'Not provided'}</span>
                       </div>
                     </div>
                   </div>
@@ -555,15 +557,15 @@ export default function Home() {
                   <div className="mt-4 grid grid-cols-2 gap-2">
                     <Link
                       to={`/dashboard/${student._id}`}
-                      className="py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-semibold rounded-xl text-center transition-colors block"
+                      className="py-2 bg-[#7C4DFF] hover:bg-[#6C3CE9] text-white text-xs font-semibold rounded-xl text-center shadow-sm shadow-[#7C4DFF]/20 transition-all block"
                     >
                       Dashboard →
                     </Link>
                     <Link
                       to={`/compare?a=${student._id}`}
-                      className="py-2 bg-indigo-950/80 hover:bg-indigo-600 text-indigo-300 hover:text-white border border-indigo-800/60 hover:border-indigo-600 text-xs font-semibold rounded-xl text-center transition-colors block"
+                      className="py-2 bg-[#E8DEFB] hover:bg-[#C9B6F0] text-[#2B2438] border border-[#C9B6F0] text-xs font-semibold rounded-xl text-center transition-colors block shadow-xs"
                     >
-                      ⚖️ Compare
+                      Compare
                     </Link>
                   </div>
                 </div>
@@ -575,13 +577,13 @@ export default function Home() {
 
       {/* Add Student Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-              <h3 className="text-lg font-bold text-slate-100">Add New Student Profile</h3>
+        <div className="fixed inset-0 bg-[#2B2438]/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-[#E0D4F7] rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-6 text-[#2B2438]">
+            <div className="flex items-center justify-between border-b border-[#E0D4F7] pb-4">
+              <h3 className="text-lg font-bold text-[#2B2438]">Add New Student Profile</h3>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="text-slate-400 hover:text-slate-200 text-lg cursor-pointer"
+                className="text-[#8A7FA3] hover:text-[#2B2438] text-lg cursor-pointer"
               >
                 ✕
               </button>
@@ -590,71 +592,71 @@ export default function Home() {
             <form onSubmit={handleCreateStudent} className="space-y-4 text-sm">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">Full Name *</label>
+                  <label className="block text-xs font-semibold text-[#2B2438] mb-1">Full Name *</label>
                   <input
                     type="text"
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="e.g. John Doe"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs"
+                    className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">Roll Number *</label>
+                  <label className="block text-xs font-semibold text-[#2B2438] mb-1">Roll Number *</label>
                   <input
                     type="text"
                     required
                     value={formData.rollNumber}
                     onChange={(e) => setFormData({ ...formData, rollNumber: e.target.value })}
                     placeholder="e.g. CS2026-042"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs"
+                    className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">College / University</label>
+                  <label className="block text-xs font-semibold text-[#2B2438] mb-1">College / University</label>
                   <input
                     type="text"
                     value={formData.college}
                     onChange={(e) => setFormData({ ...formData, college: e.target.value })}
-                    placeholder="e.g. Stanford University"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs"
+                    placeholder="e.g. Stanford"
+                    className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">Branch</label>
+                  <label className="block text-xs font-semibold text-[#2B2438] mb-1">Branch</label>
                   <input
                     type="text"
                     value={formData.branch}
                     onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
                     placeholder="e.g. IT, CS, ECE"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs"
+                    className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">Section</label>
+                  <label className="block text-xs font-semibold text-[#2B2438] mb-1">Section</label>
                   <input
                     type="text"
                     value={formData.section}
                     onChange={(e) => setFormData({ ...formData, section: e.target.value })}
                     placeholder="e.g. A, B, C"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs"
+                    className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs"
                   />
                 </div>
               </div>
 
               <div className="space-y-3 pt-2">
-                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Platform Usernames</div>
+                <div className="text-xs font-bold text-[#8A7FA3] uppercase tracking-wider">Platform Usernames</div>
                 <div>
                   <input
                     type="text"
                     value={formData.leetcodeUsername}
                     onChange={(e) => setFormData({ ...formData, leetcodeUsername: e.target.value })}
-                    placeholder="LeetCode Username (e.g. tourist)"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs font-mono"
+                    placeholder="LeetCode Username"
+                    className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs font-mono"
                   />
                 </div>
                 <div>
@@ -662,8 +664,8 @@ export default function Home() {
                     type="text"
                     value={formData.codeforcesUsername}
                     onChange={(e) => setFormData({ ...formData, codeforcesUsername: e.target.value })}
-                    placeholder="Codeforces Username (e.g. tourist)"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs font-mono"
+                    placeholder="Codeforces Username"
+                    className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs font-mono"
                   />
                 </div>
                 <div>
@@ -671,8 +673,8 @@ export default function Home() {
                     type="text"
                     value={formData.githubUsername}
                     onChange={(e) => setFormData({ ...formData, githubUsername: e.target.value })}
-                    placeholder="GitHub Username (e.g. torvalds)"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs font-mono"
+                    placeholder="GitHub Username"
+                    className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs font-mono"
                   />
                 </div>
                 <div>
@@ -681,7 +683,7 @@ export default function Home() {
                     value={formData.gfgUsername}
                     onChange={(e) => setFormData({ ...formData, gfgUsername: e.target.value })}
                     placeholder="GeeksforGeeks Username"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs font-mono"
+                    className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs font-mono"
                   />
                 </div>
                 <div>
@@ -690,23 +692,23 @@ export default function Home() {
                     value={formData.codechefUsername}
                     onChange={(e) => setFormData({ ...formData, codechefUsername: e.target.value })}
                     placeholder="CodeChef Username"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs font-mono"
+                    className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs font-mono"
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
+              <div className="flex justify-end gap-3 pt-4 border-t border-[#E0D4F7]">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-xl transition-colors cursor-pointer"
+                  className="px-4 py-2 bg-[#FAF8FE] hover:bg-[#E8DEFB] text-[#8A7FA3] hover:text-[#2B2438] border border-[#E0D4F7] text-xs rounded-xl transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={creating}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-950 text-white font-medium text-xs rounded-xl transition-colors cursor-pointer"
+                  className="px-4 py-2 bg-[#7C4DFF] hover:bg-[#6C3CE9] disabled:opacity-50 text-white font-semibold text-xs rounded-xl shadow-sm shadow-[#7C4DFF]/25 transition-colors cursor-pointer"
                 >
                   {creating ? 'Saving...' : 'Save Student'}
                 </button>
@@ -718,18 +720,18 @@ export default function Home() {
 
       {/* Admin Delete Confirmation Modal */}
       {deleteTarget && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-5 text-center">
-            <div className="w-12 h-12 bg-rose-500/10 text-rose-500 rounded-full flex items-center justify-center mx-auto text-xl font-bold">
-              🗑️
+        <div className="fixed inset-0 bg-[#2B2438]/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-[#E0D4F7] rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-5 text-center text-[#2B2438]">
+            <div className="w-12 h-12 bg-[#E74C3C]/10 text-[#E74C3C] border border-[#E74C3C]/30 rounded-full flex items-center justify-center mx-auto text-xl font-extrabold">
+              ❗
             </div>
             
             <div className="space-y-2">
-              <h3 className="text-lg font-bold text-slate-100">
+              <h3 className="text-lg font-bold text-[#2B2438]">
                 {deleteTarget.isBulk ? `Delete ${deleteTarget.count} Profiles?` : `Delete ${deleteTarget.singleStudent?.name}'s profile?`}
               </h3>
-              <p className="text-slate-300 text-xs leading-relaxed">
-                {deleteTarget.isBulk ? <>Delete <strong className="text-slate-100">{deleteTarget.count}</strong> student profile(s)? </> : null}This cannot be undone.
+              <p className="text-[#8A7FA3] text-xs leading-relaxed">
+                {deleteTarget.isBulk ? <>Delete <strong className="text-[#2B2438]">{deleteTarget.count}</strong> student profile(s)? </> : null}This action is destructive and cannot be undone.
               </p>
             </div>
 
@@ -737,16 +739,16 @@ export default function Home() {
               <button
                 onClick={() => setDeleteTarget(null)}
                 disabled={deleting}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+                className="px-4 py-2 bg-[#FAF8FE] hover:bg-[#E8DEFB] text-[#8A7FA3] hover:text-[#2B2438] border border-[#E0D4F7] text-xs font-semibold rounded-xl transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmDelete}
                 disabled={deleting}
-                className="px-4 py-2 bg-rose-600 hover:bg-rose-500 disabled:bg-rose-950 text-white text-xs font-semibold rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
+                className="px-4 py-2 bg-[#E74C3C] hover:bg-[#DC2626] disabled:opacity-50 text-white text-xs font-semibold rounded-xl transition-colors cursor-pointer flex items-center gap-1.5 shadow-sm"
               >
-                {deleting ? 'Deleting...' : 'Delete Permanently'}
+                {deleting ? 'Deleting...' : '❗ Delete Permanently'}
               </button>
             </div>
           </div>
@@ -755,13 +757,13 @@ export default function Home() {
 
       {/* Edit Student Modal (Admin Only) */}
       {editTarget && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-              <h3 className="text-lg font-bold text-slate-100">Edit Student Profile</h3>
+        <div className="fixed inset-0 bg-[#2B2438]/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-[#E0D4F7] rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-6 text-[#2B2438]">
+            <div className="flex items-center justify-between border-b border-[#E0D4F7] pb-4">
+              <h3 className="text-lg font-bold text-[#2B2438]">Edit Student Profile</h3>
               <button
                 onClick={() => setEditTarget(null)}
-                className="text-slate-400 hover:text-slate-200 text-lg cursor-pointer"
+                className="text-[#8A7FA3] hover:text-[#2B2438] text-lg cursor-pointer"
               >
                 ✕
               </button>
@@ -769,57 +771,57 @@ export default function Home() {
 
             <form onSubmit={handleEditStudent} className="space-y-4 text-sm">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Full Name *</label>
+                <label className="block text-xs font-semibold text-[#2B2438] mb-1">Full Name *</label>
                 <input
                   type="text"
                   required
                   value={editFormData.name}
                   onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs"
+                  className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs"
                 />
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">College / University</label>
+                  <label className="block text-xs font-semibold text-[#2B2438] mb-1">College / University</label>
                   <input
                     type="text"
                     value={editFormData.college}
                     onChange={(e) => setEditFormData({ ...editFormData, college: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs"
+                    className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">Branch</label>
+                  <label className="block text-xs font-semibold text-[#2B2438] mb-1">Branch</label>
                   <input
                     type="text"
                     value={editFormData.branch}
                     onChange={(e) => setEditFormData({ ...editFormData, branch: e.target.value })}
                     placeholder="e.g. IT, CS"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs"
+                    className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">Section</label>
+                  <label className="block text-xs font-semibold text-[#2B2438] mb-1">Section</label>
                   <input
                     type="text"
                     value={editFormData.section}
                     onChange={(e) => setEditFormData({ ...editFormData, section: e.target.value })}
                     placeholder="e.g. A, B"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs"
+                    className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs"
                   />
                 </div>
               </div>
 
               <div className="space-y-3 pt-2">
-                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Platform Usernames</div>
+                <div className="text-xs font-bold text-[#8A7FA3] uppercase tracking-wider">Platform Usernames</div>
                 <div>
                   <input
                     type="text"
                     value={editFormData.leetcodeUsername}
                     onChange={(e) => setEditFormData({ ...editFormData, leetcodeUsername: e.target.value })}
                     placeholder="LeetCode Username"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs font-mono"
+                    className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs font-mono"
                   />
                 </div>
                 <div>
@@ -828,7 +830,7 @@ export default function Home() {
                     value={editFormData.codeforcesUsername}
                     onChange={(e) => setEditFormData({ ...editFormData, codeforcesUsername: e.target.value })}
                     placeholder="Codeforces Username"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs font-mono"
+                    className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs font-mono"
                   />
                 </div>
                 <div>
@@ -837,7 +839,7 @@ export default function Home() {
                     value={editFormData.githubUsername}
                     onChange={(e) => setEditFormData({ ...editFormData, githubUsername: e.target.value })}
                     placeholder="GitHub Username"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs font-mono"
+                    className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs font-mono"
                   />
                 </div>
                 <div>
@@ -846,7 +848,7 @@ export default function Home() {
                     value={editFormData.gfgUsername}
                     onChange={(e) => setEditFormData({ ...editFormData, gfgUsername: e.target.value })}
                     placeholder="GeeksforGeeks Username"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs font-mono"
+                    className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs font-mono"
                   />
                 </div>
                 <div>
@@ -855,23 +857,23 @@ export default function Home() {
                     value={editFormData.codechefUsername}
                     onChange={(e) => setEditFormData({ ...editFormData, codechefUsername: e.target.value })}
                     placeholder="CodeChef Username"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs font-mono"
+                    className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs font-mono"
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
+              <div className="flex justify-end gap-3 pt-4 border-t border-[#E0D4F7]">
                 <button
                   type="button"
                   onClick={() => setEditTarget(null)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-xl transition-colors cursor-pointer"
+                  className="px-4 py-2 bg-[#FAF8FE] hover:bg-[#E8DEFB] text-[#8A7FA3] hover:text-[#2B2438] border border-[#E0D4F7] text-xs rounded-xl transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={editing}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-950 text-white font-medium text-xs rounded-xl transition-colors cursor-pointer"
+                  className="px-4 py-2 bg-[#7C4DFF] hover:bg-[#6C3CE9] disabled:opacity-50 text-white font-semibold text-xs rounded-xl shadow-sm shadow-[#7C4DFF]/25 transition-colors cursor-pointer"
                 >
                   {editing ? 'Saving...' : 'Save Changes'}
                 </button>

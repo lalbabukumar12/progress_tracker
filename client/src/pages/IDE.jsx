@@ -106,7 +106,7 @@ export default function IDE() {
       }
 
       const data = await res.json();
-      toast.success(`✓ Marked as Solved! Total Practice Problems: ${data.problemsSolved}`, { id: toastId });
+      toast.success(`Marked as Solved! Total Practice Problems: ${data.problemsSolved}`, { id: toastId });
     } catch (err) {
       toast.error(err.message || 'Error marking problem as solved', { id: toastId });
     } finally {
@@ -117,12 +117,12 @@ export default function IDE() {
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-6">
       {/* Top Header */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+      <div className="bg-white border border-[#E0D4F7] rounded-2xl p-6 shadow-sm flex flex-col xl:flex-row xl:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-100 flex items-center gap-2">
-            <span>💻</span> Online Code IDE
+          <h1 className="text-2xl md:text-3xl font-extrabold text-[#2B2438]">
+            Online Code IDE
           </h1>
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="text-[#8A7FA3] text-sm mt-1">
             Write, compile, and execute Python, C++, and Java code using Judge0 sandbox.
           </p>
         </div>
@@ -131,11 +131,11 @@ export default function IDE() {
           {/* Active Student Selector */}
           {students.length > 0 && (
             <div className="flex items-center gap-2 w-full sm:w-auto">
-              <label className="text-xs font-medium text-slate-400">Student:</label>
+              <label className="text-xs font-semibold text-[#8A7FA3]">Student:</label>
               <select
                 value={selectedStudentId}
                 onChange={(e) => setSelectedStudentId(e.target.value)}
-                className="bg-slate-950 border border-slate-800 text-slate-200 text-xs font-semibold rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500 cursor-pointer flex-1 sm:flex-initial"
+                className="bg-[#FAF8FE] border border-[#E0D4F7] text-[#2B2438] text-xs font-semibold rounded-xl px-3 py-2 focus:outline-none focus:border-[#7C4DFF] cursor-pointer flex-1 sm:flex-initial"
               >
                 {students.map((s) => (
                   <option key={s._id} value={s._id}>
@@ -150,7 +150,7 @@ export default function IDE() {
           <select
             value={language}
             onChange={(e) => handleLanguageChange(e.target.value)}
-            className="bg-slate-950 border border-slate-800 text-slate-200 text-xs font-semibold rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500 cursor-pointer w-full sm:w-auto"
+            className="bg-[#FAF8FE] border border-[#E0D4F7] text-[#2B2438] text-xs font-semibold rounded-xl px-3 py-2 focus:outline-none focus:border-[#7C4DFF] cursor-pointer w-full sm:w-auto"
           >
             <option value="python">Python 3</option>
             <option value="cpp">C++ (GCC)</option>
@@ -162,7 +162,7 @@ export default function IDE() {
             <button
               onClick={handleRunCode}
               disabled={executing}
-              className="flex-1 sm:flex-initial px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-950 text-white font-semibold text-xs rounded-xl shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:cursor-not-allowed"
+              className="flex-1 sm:flex-initial px-4 py-2 bg-[#7C4DFF] hover:bg-[#6C3CE9] disabled:opacity-50 text-white font-semibold text-xs rounded-xl shadow-sm shadow-[#7C4DFF]/25 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:cursor-not-allowed"
             >
               {executing ? (
                 <>
@@ -179,7 +179,7 @@ export default function IDE() {
             <button
               onClick={handleMarkAsSolved}
               disabled={markingSolved || !selectedStudentId}
-              className="flex-1 sm:flex-initial px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-950 text-white font-semibold text-xs rounded-xl shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:cursor-not-allowed"
+              className="flex-1 sm:flex-initial px-4 py-2 bg-[#27AE60] hover:bg-[#219653] disabled:opacity-50 text-white font-semibold text-xs rounded-xl shadow-sm shadow-[#27AE60]/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:cursor-not-allowed"
             >
               {markingSolved ? (
                 <>
@@ -188,7 +188,7 @@ export default function IDE() {
                 </>
               ) : (
                 <>
-                  <span>✓</span> Mark as Solved
+                  Mark as Solved
                 </>
               )}
             </button>
@@ -199,16 +199,16 @@ export default function IDE() {
       {/* Editor & Input Workspace */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Monaco Code Editor (2 Columns) */}
-        <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl flex flex-col">
-          <div className="bg-slate-950/80 px-4 py-3 border-b border-slate-800 flex items-center justify-between text-xs font-mono text-slate-400">
-            <span>main.{language === 'python' ? 'py' : language === 'cpp' ? 'cpp' : 'java'}</span>
-            <span className="text-slate-500">Monaco Editor (vs-dark)</span>
+        <div className="lg:col-span-2 bg-white border border-[#E0D4F7] rounded-2xl overflow-hidden shadow-sm flex flex-col">
+          <div className="bg-[#FAF8FE] px-4 py-3 border-b border-[#E0D4F7] flex items-center justify-between text-xs font-mono text-[#8A7FA3]">
+            <span className="text-[#2B2438] font-semibold">main.{language === 'python' ? 'py' : language === 'cpp' ? 'cpp' : 'java'}</span>
+            <span>Monaco Editor</span>
           </div>
           <div className="flex-1 min-h-[380px]">
             <Editor
               height="400px"
               language={language === 'cpp' ? 'cpp' : language === 'python' ? 'python' : 'java'}
-              theme="vs-dark"
+              theme="vs"
               value={code}
               onChange={(value) => setCode(value || '')}
               options={{
@@ -223,8 +223,8 @@ export default function IDE() {
         </div>
 
         {/* Input (stdin) Panel (1 Column) */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col space-y-3">
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
+        <div className="bg-white border border-[#E0D4F7] rounded-2xl p-4 shadow-sm flex flex-col space-y-3">
+          <label className="text-xs font-bold uppercase tracking-wider text-[#8A7FA3]">
             Standard Input (stdin)
           </label>
           <textarea
@@ -232,15 +232,15 @@ export default function IDE() {
             onChange={(e) => setStdin(e.target.value)}
             placeholder="Enter input values here..."
             rows={12}
-            className="flex-1 w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500 resize-none min-h-[140px]"
+            className="flex-1 w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl p-3 text-xs font-mono text-[#2B2438] placeholder-[#8A7FA3] focus:outline-none focus:border-[#7C4DFF] resize-none min-h-[140px]"
           />
         </div>
       </div>
 
       {/* Output Console Section */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+      <div className="bg-white border border-[#E0D4F7] rounded-2xl p-6 shadow-sm space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-300">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-[#2B2438]">
             Execution Console
           </h3>
 
@@ -248,26 +248,26 @@ export default function IDE() {
             <div className="flex items-center gap-3 text-xs font-mono flex-wrap">
               <span className={`px-2.5 py-0.5 rounded border font-semibold ${
                 output.status === 'Accepted' || output.status === 'Executed'
-                  ? 'bg-emerald-950 text-emerald-400 border-emerald-800/60'
-                  : 'bg-rose-950 text-rose-400 border-rose-800/60'
+                  ? 'bg-[#27AE60]/15 text-[#27AE60] border-[#27AE60]/40'
+                  : 'bg-[#E74C3C]/15 text-[#E74C3C] border-[#E74C3C]/40'
               }`}>
                 {output.status}
               </span>
-              <span className="text-slate-400">Time: <strong className="text-slate-200">{output.time}</strong></span>
-              <span className="text-slate-400">Memory: <strong className="text-slate-200">{output.memory}</strong></span>
+              <span className="text-[#8A7FA3]">Time: <strong className="text-[#2B2438]">{output.time}</strong></span>
+              <span className="text-[#8A7FA3]">Memory: <strong className="text-[#2B2438]">{output.memory}</strong></span>
             </div>
           )}
         </div>
 
         {executing && (
-          <div className="bg-slate-950 p-6 rounded-xl border border-slate-800 text-slate-400 text-xs font-mono flex items-center gap-3">
-            <span className="w-2.5 h-2.5 bg-amber-400 rounded-full animate-ping" />
-            Sending payload to Judge0 container engine...
+          <div className="bg-[#FAF8FE] p-6 rounded-xl border border-[#E0D4F7] text-[#8A7FA3] text-xs font-mono flex items-center gap-3">
+            <span className="w-2.5 h-2.5 bg-[#7C4DFF] rounded-full animate-ping" />
+            Executing code in Judge0 container sandbox...
           </div>
         )}
 
         {!executing && !output && (
-          <div className="bg-slate-950 p-6 rounded-xl border border-slate-800 text-slate-500 text-xs font-mono text-center">
+          <div className="bg-[#FAF8FE] p-6 rounded-xl border border-[#E0D4F7] text-[#8A7FA3] text-xs font-mono text-center">
             Click "▶ Run Code" above to execute your snippet.
           </div>
         )}
@@ -277,10 +277,10 @@ export default function IDE() {
             {/* Standard Output */}
             {output.stdout && (
               <div className="space-y-1">
-                <div className="text-emerald-400 font-semibold text-[11px] uppercase tracking-wider">
+                <div className="text-[#27AE60] font-semibold text-[11px] uppercase tracking-wider">
                   Standard Output (stdout):
                 </div>
-                <pre className="bg-slate-950 p-4 rounded-xl border border-slate-800 text-emerald-300 overflow-x-auto whitespace-pre-wrap">
+                <pre className="bg-[#FAF8FE] p-4 rounded-xl border border-[#27AE60]/30 text-[#1E8449] overflow-x-auto whitespace-pre-wrap">
                   {output.stdout}
                 </pre>
               </div>
@@ -289,17 +289,17 @@ export default function IDE() {
             {/* Standard Error / Compilation Errors */}
             {output.stderr && (
               <div className="space-y-1">
-                <div className="text-rose-400 font-semibold text-[11px] uppercase tracking-wider">
+                <div className="text-[#E74C3C] font-semibold text-[11px] uppercase tracking-wider">
                   Errors / Diagnostics (stderr):
                 </div>
-                <pre className="bg-slate-950 p-4 rounded-xl border border-rose-950/60 text-rose-300 overflow-x-auto whitespace-pre-wrap">
+                <pre className="bg-[#FAF8FE] p-4 rounded-xl border border-[#E74C3C]/30 text-[#E74C3C] overflow-x-auto whitespace-pre-wrap">
                   {output.stderr}
                 </pre>
               </div>
             )}
 
             {!output.stdout && !output.stderr && (
-              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 text-slate-400 italic">
+              <div className="bg-[#FAF8FE] p-4 rounded-xl border border-[#E0D4F7] text-[#8A7FA3] italic">
                 Program completed with no output.
               </div>
             )}

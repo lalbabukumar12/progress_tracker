@@ -16,17 +16,30 @@ import NotFound from './pages/NotFound';
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+      <div className="min-h-screen bg-[#F3EFFB] text-[#2B2438] flex flex-col font-sans selection:bg-[#7C4DFF]/20 selection:text-[#2B2438]">
         <Toaster
           position="top-right"
           toastOptions={{
             duration: 3500,
             style: {
-              background: '#0f172a',
-              color: '#f8fafc',
-              border: '1px solid #1e293b',
+              background: '#FFFFFF',
+              color: '#2B2438',
+              border: '1px solid #E0D4F7',
               borderRadius: '0.75rem',
               fontSize: '0.875rem',
+              boxShadow: '0 10px 25px -5px rgba(124, 77, 255, 0.12), 0 8px 10px -6px rgba(124, 77, 255, 0.08)',
+            },
+            success: {
+              iconTheme: {
+                primary: '#27AE60',
+                secondary: '#FFFFFF',
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: '#E74C3C',
+                secondary: '#FFFFFF',
+              },
             },
           }}
         />

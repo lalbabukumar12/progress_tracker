@@ -35,11 +35,9 @@ export default function Login() {
         throw new Error(data.message || 'Authentication failed');
       }
 
-      // Save token and user details to localStorage
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
 
-      // Notify window to update Navbar
       window.dispatchEvent(new Event('storage'));
 
       toast.success(isRegister ? 'Account registered successfully!' : `Welcome back, ${data.user.username}!`, { id: toastId });
@@ -52,12 +50,12 @@ export default function Login() {
   };
 
   return (
-    <div className="max-w-md mx-auto my-12 md:my-16 p-6 md:p-8 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl space-y-6">
+    <div className="max-w-md mx-auto my-12 md:my-16 p-6 md:p-8 bg-white border border-[#E0D4F7] rounded-2xl shadow-xl space-y-6 text-[#2B2438]">
       <div className="text-center space-y-2">
-        <h1 className="text-2xl font-extrabold text-slate-100">
+        <h1 className="text-2xl font-extrabold text-[#2B2438]">
           {isRegister ? 'Create an Account' : 'Welcome Back'}
         </h1>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-[#8A7FA3]">
           {isRegister
             ? 'Sign up to execute code & refresh student statistics'
             : 'Login to access protected features and run code'}
@@ -67,20 +65,20 @@ export default function Login() {
       <form onSubmit={handleSubmit} className="space-y-4 text-sm">
         {isRegister && (
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Username</label>
+            <label className="block text-xs font-semibold text-[#2B2438] mb-1">Username</label>
             <input
               type="text"
               required
               value={formData.username}
               onChange={(e) => setFormData({ ...formData, username: e.target.value })}
               placeholder="e.g. johndoe"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs"
+              className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs"
             />
           </div>
         )}
 
         <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1">
+          <label className="block text-xs font-semibold text-[#2B2438] mb-1">
             {isRegister ? 'Email Address' : 'Email or Username'}
           </label>
           <input
@@ -89,12 +87,12 @@ export default function Login() {
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             placeholder={isRegister ? 'john@example.com' : 'Enter email or username'}
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs"
+            className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1">Password</label>
+          <label className="block text-xs font-semibold text-[#2B2438] mb-1">Password</label>
           <input
             type="password"
             required
@@ -102,25 +100,25 @@ export default function Login() {
             value={formData.password}
             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             placeholder="••••••••"
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs"
+            className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs"
           />
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-950 text-white font-semibold text-xs rounded-xl shadow-lg shadow-indigo-600/20 transition-colors cursor-pointer"
+          className="w-full py-2.5 bg-[#7C4DFF] hover:bg-[#6C3CE9] disabled:opacity-50 text-white font-semibold text-xs rounded-xl shadow-md shadow-[#7C4DFF]/25 transition-colors cursor-pointer"
         >
           {loading ? 'Authenticating...' : isRegister ? 'Register Account' : 'Log In'}
         </button>
       </form>
 
-      <div className="text-center pt-2 border-t border-slate-800">
+      <div className="text-center pt-2 border-t border-[#E0D4F7]">
         <button
           onClick={() => {
             setIsRegister(!isRegister);
           }}
-          className="text-xs text-indigo-400 hover:text-indigo-300 font-medium cursor-pointer"
+          className="text-xs text-[#7C4DFF] hover:text-[#6C3CE9] font-medium cursor-pointer"
         >
           {isRegister ? 'Already have an account? Log In' : "Don't have an account? Register"}
         </button>

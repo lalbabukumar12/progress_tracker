@@ -50,14 +50,14 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-slate-900 border-b border-slate-800 px-4 md:px-8 py-4 shadow-lg sticky top-0 z-40">
+    <nav className="bg-white/95 border-b border-[#E0D4F7] px-4 md:px-8 py-3.5 shadow-sm sticky top-0 z-40 backdrop-blur-md">
       <div className="flex items-center justify-between">
         {/* Brand Logo */}
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white shadow-md shadow-indigo-500/20">
+          <div className="w-8 h-8 rounded-lg bg-[#7C4DFF] flex items-center justify-center font-extrabold text-white shadow-sm shadow-[#7C4DFF]/30 tracking-tight text-sm">
             PT
           </div>
-          <Link to="/" className="text-xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+          <Link to="/" className="text-xl font-extrabold bg-gradient-to-r from-[#7C4DFF] via-[#8E5CF7] to-[#6C3CE9] bg-clip-text text-transparent tracking-tight">
             Progress Tracker
           </Link>
         </div>
@@ -65,7 +65,7 @@ export default function Navbar() {
         {/* Mobile Hamburger Toggle */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden text-slate-400 hover:text-white text-xl p-1 focus:outline-none"
+          className="md:hidden text-[#8A7FA3] hover:text-[#2B2438] text-xl p-1 focus:outline-none cursor-pointer"
         >
           {mobileMenuOpen ? '✕' : '☰'}
         </button>
@@ -75,7 +75,7 @@ export default function Navbar() {
           <NavLink 
             to="/" 
             className={({ isActive }) => 
-              isActive ? "text-indigo-400 font-semibold" : "text-slate-400 hover:text-slate-200 transition-colors"
+              isActive ? "text-[#7C4DFF] font-bold" : "text-[#8A7FA3] hover:text-[#2B2438] transition-colors"
             }
           >
             Directory
@@ -84,7 +84,7 @@ export default function Navbar() {
             <NavLink 
               to={`/dashboard/${myStudentId}`} 
               className={({ isActive }) => 
-                isActive ? "text-indigo-400 font-semibold" : "text-slate-400 hover:text-slate-200 transition-colors"
+                isActive ? "text-[#7C4DFF] font-bold" : "text-[#8A7FA3] hover:text-[#2B2438] transition-colors"
               }
             >
               My Dashboard
@@ -93,7 +93,7 @@ export default function Navbar() {
           <NavLink 
             to="/leaderboard" 
             className={({ isActive }) => 
-              isActive ? "text-indigo-400 font-semibold" : "text-slate-400 hover:text-slate-200 transition-colors"
+              isActive ? "text-[#7C4DFF] font-bold" : "text-[#8A7FA3] hover:text-[#2B2438] transition-colors"
             }
           >
             Leaderboard
@@ -101,7 +101,7 @@ export default function Navbar() {
           <NavLink 
             to="/compare" 
             className={({ isActive }) => 
-              isActive ? "text-indigo-400 font-semibold" : "text-slate-400 hover:text-slate-200 transition-colors"
+              isActive ? "text-[#7C4DFF] font-bold" : "text-[#8A7FA3] hover:text-[#2B2438] transition-colors"
             }
           >
             Compare
@@ -109,7 +109,7 @@ export default function Navbar() {
           <NavLink 
             to="/contests" 
             className={({ isActive }) => 
-              isActive ? "text-indigo-400 font-semibold" : "text-slate-400 hover:text-slate-200 transition-colors"
+              isActive ? "text-[#7C4DFF] font-bold" : "text-[#8A7FA3] hover:text-[#2B2438] transition-colors"
             }
           >
             Contests
@@ -117,7 +117,7 @@ export default function Navbar() {
           <NavLink 
             to="/chat" 
             className={({ isActive }) => 
-              isActive ? "text-indigo-400 font-semibold" : "text-slate-400 hover:text-slate-200 transition-colors"
+              isActive ? "text-[#7C4DFF] font-bold" : "text-[#8A7FA3] hover:text-[#2B2438] transition-colors"
             }
           >
             Chat
@@ -125,7 +125,7 @@ export default function Navbar() {
           <NavLink 
             to="/ide" 
             className={({ isActive }) => 
-              isActive ? "text-indigo-400 font-semibold" : "text-slate-400 hover:text-slate-200 transition-colors"
+              isActive ? "text-[#7C4DFF] font-bold" : "text-[#8A7FA3] hover:text-[#2B2438] transition-colors"
             }
           >
             Code IDE
@@ -134,7 +134,7 @@ export default function Navbar() {
             <NavLink 
               to="/profile" 
               className={({ isActive }) => 
-                isActive ? "text-indigo-400 font-semibold" : "text-slate-400 hover:text-slate-200 transition-colors"
+                isActive ? "text-[#7C4DFF] font-bold" : "text-[#8A7FA3] hover:text-[#2B2438] transition-colors"
               }
             >
               Profile
@@ -143,29 +143,29 @@ export default function Navbar() {
           <NavLink 
             to="/about" 
             className={({ isActive }) => 
-              isActive ? "text-indigo-400 font-semibold" : "text-slate-400 hover:text-slate-200 transition-colors"
+              isActive ? "text-[#7C4DFF] font-bold" : "text-[#8A7FA3] hover:text-[#2B2438] transition-colors"
             }
           >
             About
           </NavLink>
 
           {user ? (
-            <div className="flex items-center gap-3 pl-4 border-l border-slate-800">
-              <Link to="/profile" className="text-xs font-mono text-indigo-300 bg-indigo-950 hover:bg-indigo-900 px-2.5 py-1 rounded-full border border-indigo-800/60 transition-colors">
-                👤 {user.username}
+            <div className="flex items-center gap-3 pl-4 border-l border-[#E0D4F7]">
+              <Link to="/profile" className="text-xs font-mono text-[#2B2438] bg-[#E8DEFB] hover:bg-[#DED0F7] px-3 py-1 rounded-full border border-[#C9B6F0] transition-colors shadow-xs">
+                {user.username}
               </Link>
               <button
                 onClick={handleLogout}
-                className="text-xs text-rose-400 hover:text-rose-300 font-semibold cursor-pointer"
+                className="text-xs text-[#E74C3C] hover:text-[#DC2626] font-semibold cursor-pointer transition-colors"
               >
                 Logout
               </button>
             </div>
           ) : (
-            <div className="pl-4 border-l border-slate-800">
+            <div className="pl-4 border-l border-[#E0D4F7]">
               <NavLink
                 to="/login"
-                className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs rounded-xl transition-colors"
+                className="px-3.5 py-1.5 bg-[#7C4DFF] hover:bg-[#6C3CE9] text-white font-semibold text-xs rounded-xl shadow-sm shadow-[#7C4DFF]/25 transition-all"
               >
                 Login / Register
               </NavLink>
@@ -176,11 +176,11 @@ export default function Navbar() {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden pt-4 pb-2 space-y-3 border-t border-slate-800/80 mt-3 flex flex-col text-sm">
+        <div className="md:hidden pt-4 pb-2 space-y-3 border-t border-[#E0D4F7] mt-3 flex flex-col text-sm bg-white">
           <NavLink 
             to="/" 
             onClick={() => setMobileMenuOpen(false)}
-            className="text-slate-300 hover:text-indigo-400 py-1 font-medium"
+            className="text-[#8A7FA3] hover:text-[#7C4DFF] py-1 font-medium"
           >
             Directory
           </NavLink>
@@ -188,7 +188,7 @@ export default function Navbar() {
             <NavLink 
               to={`/dashboard/${myStudentId}`} 
               onClick={() => setMobileMenuOpen(false)}
-              className="text-slate-300 hover:text-indigo-400 py-1 font-medium"
+              className="text-[#8A7FA3] hover:text-[#7C4DFF] py-1 font-medium"
             >
               My Dashboard
             </NavLink>
@@ -196,35 +196,35 @@ export default function Navbar() {
           <NavLink 
             to="/leaderboard" 
             onClick={() => setMobileMenuOpen(false)}
-            className="text-slate-300 hover:text-indigo-400 py-1 font-medium"
+            className="text-[#8A7FA3] hover:text-[#7C4DFF] py-1 font-medium"
           >
             Leaderboard
           </NavLink>
           <NavLink 
             to="/compare" 
             onClick={() => setMobileMenuOpen(false)}
-            className="text-slate-300 hover:text-indigo-400 py-1 font-medium"
+            className="text-[#8A7FA3] hover:text-[#7C4DFF] py-1 font-medium"
           >
             Compare
           </NavLink>
           <NavLink 
             to="/contests" 
             onClick={() => setMobileMenuOpen(false)}
-            className="text-slate-300 hover:text-indigo-400 py-1 font-medium"
+            className="text-[#8A7FA3] hover:text-[#7C4DFF] py-1 font-medium"
           >
             Contests
           </NavLink>
           <NavLink 
             to="/chat" 
             onClick={() => setMobileMenuOpen(false)}
-            className="text-slate-300 hover:text-indigo-400 py-1 font-medium"
+            className="text-[#8A7FA3] hover:text-[#7C4DFF] py-1 font-medium"
           >
             Chat
           </NavLink>
           <NavLink 
             to="/ide" 
             onClick={() => setMobileMenuOpen(false)}
-            className="text-slate-300 hover:text-indigo-400 py-1 font-medium"
+            className="text-[#8A7FA3] hover:text-[#7C4DFF] py-1 font-medium"
           >
             Code IDE
           </NavLink>
@@ -232,7 +232,7 @@ export default function Navbar() {
             <NavLink 
               to="/profile" 
               onClick={() => setMobileMenuOpen(false)}
-              className="text-slate-300 hover:text-indigo-400 py-1 font-medium"
+              className="text-[#8A7FA3] hover:text-[#7C4DFF] py-1 font-medium"
             >
               Profile
             </NavLink>
@@ -240,29 +240,29 @@ export default function Navbar() {
           <NavLink 
             to="/about" 
             onClick={() => setMobileMenuOpen(false)}
-            className="text-slate-300 hover:text-indigo-400 py-1 font-medium"
+            className="text-[#8A7FA3] hover:text-[#7C4DFF] py-1 font-medium"
           >
             About
           </NavLink>
 
           {user ? (
-            <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between">
-              <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="text-xs font-mono text-indigo-300 bg-indigo-950 px-2.5 py-1 rounded-full border border-indigo-800/60">
-                👤 {user.username}
+            <div className="pt-2 border-t border-[#E0D4F7] flex items-center justify-between">
+              <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="text-xs font-mono text-[#2B2438] bg-[#E8DEFB] px-3 py-1 rounded-full border border-[#C9B6F0]">
+                {user.username}
               </Link>
               <button
                 onClick={handleLogout}
-                className="text-xs text-rose-400 hover:text-rose-300 font-semibold cursor-pointer"
+                className="text-xs text-[#E74C3C] hover:text-[#DC2626] font-semibold cursor-pointer"
               >
                 Logout
               </button>
             </div>
           ) : (
-            <div className="pt-2 border-t border-slate-800/80">
+            <div className="pt-2 border-t border-[#E0D4F7]">
               <NavLink
                 to="/login"
                 onClick={() => setMobileMenuOpen(false)}
-                className="inline-block w-full text-center py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs rounded-xl"
+                className="inline-block w-full text-center py-2 bg-[#7C4DFF] hover:bg-[#6C3CE9] text-white font-semibold text-xs rounded-xl shadow-sm shadow-[#7C4DFF]/25"
               >
                 Login / Register
               </NavLink>

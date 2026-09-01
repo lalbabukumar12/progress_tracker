@@ -123,7 +123,7 @@ export default function Profile() {
         throw new Error(updated.message || 'Failed to update profile');
       }
 
-      toast.success('Profile saved successfully!', { id: toastId });
+      toast.success('✅ Profile saved successfully!', { id: toastId });
 
       // Check if platform usernames were newly added or changed
       const leetcodeChanged = formData.leetcodeUsername && formData.leetcodeUsername !== initialUsernames.leetcodeUsername;
@@ -139,9 +139,9 @@ export default function Profile() {
             method: 'POST',
             headers: { Authorization: `Bearer ${token}` },
           });
-          toast.success('Platform stats updated!', { id: refreshToast });
-        } catch (refreshErr) {
-          toast.error('Stats auto-refresh failed, try manual refresh in Dashboard', { id: refreshToast });
+          toast.success('✅ Platform stats updated!', { id: refreshToast });
+        } catch {
+          toast.error('⚠️ Stats auto-refresh failed, try manual refresh in Dashboard', { id: refreshToast });
         }
       }
 
@@ -155,12 +155,12 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <div className="max-w-3xl mx-auto my-12 p-8 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl space-y-6 animate-pulse">
-        <div className="h-8 w-48 bg-slate-800 rounded" />
+      <div className="max-w-3xl mx-auto my-12 p-8 bg-white border border-[#E0D4F7] rounded-2xl shadow-sm space-y-6 animate-pulse">
+        <div className="h-8 w-48 bg-[#E8DEFB] rounded" />
         <div className="space-y-4">
-          <div className="h-10 bg-slate-800 rounded-xl" />
-          <div className="h-10 bg-slate-800 rounded-xl" />
-          <div className="h-10 bg-slate-800 rounded-xl" />
+          <div className="h-10 bg-[#FAF8FE] rounded-xl" />
+          <div className="h-10 bg-[#FAF8FE] rounded-xl" />
+          <div className="h-10 bg-[#FAF8FE] rounded-xl" />
         </div>
       </div>
     );
@@ -170,8 +170,8 @@ export default function Profile() {
     <div className="max-w-3xl mx-auto p-4 md:p-8 space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-100">Student Profile Settings</h1>
-          <p className="text-slate-400 text-sm mt-1">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-[#2B2438]">Student Profile Settings</h1>
+          <p className="text-[#8A7FA3] text-sm mt-1">
             Manage your personal profile details and competitive coding platform usernames.
           </p>
         </div>
@@ -179,62 +179,62 @@ export default function Profile() {
         {studentId && (
           <Link
             to={`/dashboard/${studentId}`}
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs rounded-xl transition-colors hidden sm:block"
+            className="px-4 py-2 bg-[#E8DEFB] hover:bg-[#DED0F7] text-[#2B2438] font-semibold text-xs rounded-xl border border-[#C9B6F0] transition-colors hidden sm:block shadow-xs"
           >
             View Dashboard →
           </Link>
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-xl space-y-6">
+      <form onSubmit={handleSubmit} className="bg-white border border-[#E0D4F7] rounded-2xl p-6 md:p-8 shadow-sm space-y-6">
         <div className="space-y-4">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-indigo-400 border-b border-slate-800 pb-2">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-[#7C4DFF] border-b border-[#E0D4F7] pb-2">
             Personal Information
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Full Name *</label>
+              <label className="block text-xs font-semibold text-[#2B2438] mb-1">Full Name *</label>
               <input
                 type="text"
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="Enter your full name"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs"
+                className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">College / University</label>
+              <label className="block text-xs font-semibold text-[#2B2438] mb-1">College / University</label>
               <input
                 type="text"
                 value={formData.college}
                 onChange={(e) => setFormData({ ...formData, college: e.target.value })}
                 placeholder="Enter college name"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs"
+                className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Branch</label>
+              <label className="block text-xs font-semibold text-[#2B2438] mb-1">Branch</label>
               <input
                 type="text"
                 value={formData.branch}
                 onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
                 placeholder="e.g. IT, CS, ECE"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs"
+                className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Section</label>
+              <label className="block text-xs font-semibold text-[#2B2438] mb-1">Section</label>
               <input
                 type="text"
                 value={formData.section}
                 onChange={(e) => setFormData({ ...formData, section: e.target.value })}
                 placeholder="e.g. A, B, C"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs"
+                className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs"
               />
             </div>
           </div>
@@ -242,12 +242,12 @@ export default function Profile() {
           {/* Date of Birth Field with Lock Icon & Tooltip */}
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <label className="block text-xs font-semibold text-slate-300">Date of Birth {isDobSet ? '' : '*'}</label>
+              <label className="block text-xs font-semibold text-[#2B2438]">Date of Birth {isDobSet ? '' : '*'}</label>
               <span
-                className="inline-flex items-center text-amber-400 text-xs cursor-help"
+                className="inline-flex items-center text-[#D97706] text-xs cursor-help"
                 title="Your date of birth is private and only used to distinguish students with the same name. It is never shown publicly."
               >
-                🔒 <span className="text-[10px] text-slate-400 underline ml-1 font-mono">Private</span>
+                🔒 <span className="text-[10px] text-[#8A7FA3] underline ml-1 font-mono">Private</span>
               </span>
             </div>
             <input
@@ -259,16 +259,16 @@ export default function Profile() {
               onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
               className={`w-full border rounded-xl px-3.5 py-2.5 text-xs font-mono focus:outline-none ${
                 isDobSet
-                  ? 'bg-slate-950/50 text-slate-500 border-slate-800/60 cursor-not-allowed'
-                  : 'bg-slate-950 text-slate-200 border-slate-800 focus:border-indigo-500'
+                  ? 'bg-[#FAF8FE]/60 text-[#8A7FA3] border-[#E0D4F7]/50 cursor-not-allowed'
+                  : 'bg-[#FAF8FE] text-[#2B2438] border-[#E0D4F7] focus:border-[#7C4DFF]'
               }`}
             />
             {isDobSet ? (
-              <p className="text-[11px] text-amber-400/90 mt-1 flex items-center gap-1 font-mono">
+              <p className="text-[11px] text-[#D97706] mt-1 flex items-center gap-1 font-mono">
                 🔒 Date of birth can only be set once and cannot be edited later.
               </p>
             ) : (
-              <p className="text-[11px] text-slate-500 mt-1 flex items-center gap-1">
+              <p className="text-[11px] text-[#8A7FA3] mt-1 flex items-center gap-1">
                 <span>🔒</span> Your date of birth is private and only used to distinguish students with the same name. It is never shown publicly.
               </p>
             )}
@@ -277,73 +277,88 @@ export default function Profile() {
 
         {/* Platform Usernames Section */}
         <div className="space-y-4 pt-2">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-cyan-400 border-b border-slate-800 pb-2">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-[#7C4DFF] border-b border-[#E0D4F7] pb-2">
             Coding Platform Usernames
           </h2>
 
           <div className="space-y-3">
             <div>
-              <label className="block text-xs font-medium text-amber-400 mb-1">LeetCode Username</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-semibold text-[#D97706]">LeetCode Username</label>
+                {formData.leetcodeUsername && <span className="text-[10px] text-[#27AE60] font-mono">✅ Configured</span>}
+              </div>
               <input
                 type="text"
                 value={formData.leetcodeUsername}
                 onChange={(e) => setFormData({ ...formData, leetcodeUsername: e.target.value })}
                 placeholder="Add your LeetCode username"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs font-mono"
+                className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs font-mono"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-cyan-400 mb-1">Codeforces Username</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-semibold text-[#E74C3C]">Codeforces Username</label>
+                {formData.codeforcesUsername && <span className="text-[10px] text-[#27AE60] font-mono">✅ Configured</span>}
+              </div>
               <input
                 type="text"
                 value={formData.codeforcesUsername}
                 onChange={(e) => setFormData({ ...formData, codeforcesUsername: e.target.value })}
                 placeholder="Add your Codeforces username"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs font-mono"
+                className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs font-mono"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-indigo-400 mb-1">GitHub Username</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-semibold text-[#2B2438]">GitHub Username</label>
+                {formData.githubUsername && <span className="text-[10px] text-[#27AE60] font-mono">✅ Configured</span>}
+              </div>
               <input
                 type="text"
                 value={formData.githubUsername}
                 onChange={(e) => setFormData({ ...formData, githubUsername: e.target.value })}
                 placeholder="Add your GitHub username"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs font-mono"
+                className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs font-mono"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-emerald-400 mb-1">GeeksforGeeks Username</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-semibold text-[#27AE60]">GeeksforGeeks Username</label>
+                {formData.gfgUsername && <span className="text-[10px] text-[#27AE60] font-mono">✅ Configured</span>}
+              </div>
               <input
                 type="text"
                 value={formData.gfgUsername}
                 onChange={(e) => setFormData({ ...formData, gfgUsername: e.target.value })}
                 placeholder="Add your GeeksforGeeks username"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs font-mono"
+                className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs font-mono"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-amber-500 mb-1">CodeChef Username</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-semibold text-[#D97706]">CodeChef Username</label>
+                {formData.codechefUsername && <span className="text-[10px] text-[#27AE60] font-mono">✅ Configured</span>}
+              </div>
               <input
                 type="text"
                 value={formData.codechefUsername}
                 onChange={(e) => setFormData({ ...formData, codechefUsername: e.target.value })}
                 placeholder="Add your CodeChef username"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 text-xs font-mono"
+                className="w-full bg-[#FAF8FE] border border-[#E0D4F7] rounded-xl px-3.5 py-2.5 text-[#2B2438] focus:outline-none focus:border-[#7C4DFF] text-xs font-mono"
               />
             </div>
           </div>
         </div>
 
-        <div className="flex justify-end gap-4 pt-4 border-t border-slate-800">
+        <div className="flex justify-end gap-4 pt-4 border-t border-[#E0D4F7]">
           <button
             type="submit"
             disabled={saving}
-            className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-950 text-white font-semibold text-xs rounded-xl shadow-lg shadow-indigo-600/20 transition-all cursor-pointer flex items-center gap-2"
+            className="px-6 py-2.5 bg-[#7C4DFF] hover:bg-[#6C3CE9] disabled:opacity-50 text-white font-semibold text-xs rounded-xl shadow-md shadow-[#7C4DFF]/25 transition-all cursor-pointer flex items-center gap-2"
           >
             {saving ? (
               <>

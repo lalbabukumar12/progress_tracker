@@ -451,13 +451,41 @@ const refreshStudentStats = async (req, res) => {
     }
 
     const requestedPlatform = req.query.platform || req.body?.platform;
+    const directUsername =
+      req.body?.username ||
+      req.query?.username ||
+      req.body?.leetcodeUsername ||
+      req.body?.codeforcesUsername ||
+      req.body?.githubUsername ||
+      req.body?.gfgUsername ||
+      req.body?.codechefUsername;
 
     const platformFetchers = [
-      { platform: 'leetcode', username: student.leetcodeUsername, fn: getLeetcodeStats },
-      { platform: 'codeforces', username: student.codeforcesUsername, fn: getCodeforcesStats },
-      { platform: 'github', username: student.githubUsername, fn: getGithubStats },
-      { platform: 'gfg', username: student.gfgUsername, fn: getGfgStats },
-      { platform: 'codechef', username: student.codechefUsername, fn: getCodechefStats },
+      {
+        platform: 'leetcode',
+        username: (requestedPlatform === 'leetcode' && directUsername) ? directUsername : student.leetcodeUsername,
+        fn: getLeetcodeStats,
+      },
+      {
+        platform: 'codeforces',
+        username: (requestedPlatform === 'codeforces' && directUsername) ? directUsername : student.codeforcesUsername,
+        fn: getCodeforcesStats,
+      },
+      {
+        platform: 'github',
+        username: (requestedPlatform === 'github' && directUsername) ? directUsername : student.githubUsername,
+        fn: getGithubStats,
+      },
+      {
+        platform: 'gfg',
+        username: (requestedPlatform === 'gfg' && directUsername) ? directUsername : student.gfgUsername,
+        fn: getGfgStats,
+      },
+      {
+        platform: 'codechef',
+        username: (requestedPlatform === 'codechef' && directUsername) ? directUsername : student.codechefUsername,
+        fn: getCodechefStats,
+      },
     ];
 
     const activeFetchers = requestedPlatform
@@ -469,9 +497,21 @@ const refreshStudentStats = async (req, res) => {
         if (!username || !username.trim()) {
           return { platform, status: 'skipped', reason: 'No username configured', data: null };
         }
-        const data = await fn(username);
-        if (!data || data.rateLimited) {
-          throw new Error(data?.message || `Failed to fetch ${platform} stats`);
+        const trimmedUser = username.trim();
+        const data = await fn(trimmedUser);
+        if (!data || data.rateLimited || data.notFound || data.error) {
+          const platformLabels = {
+            leetcode: 'LeetCode',
+            codeforces: 'Codeforces',
+            github: 'GitHub',
+            gfg: 'GeeksforGeeks',
+            codechef: 'CodeChef',
+          };
+          const pLabel = platformLabels[platform.toLowerCase()] || platform.toUpperCase();
+          const errorMsg =
+            data?.message ||
+            `Couldn't verify this ${pLabel} username right now, the source may be temporarily unavailable`;
+          throw new Error(errorMsg);
         }
         const snap = await StatsSnapshot.create({
           studentId: student._id,

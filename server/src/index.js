@@ -47,6 +47,18 @@ app.get('/api/health', (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
   console.log(`Server & Socket.IO running on port ${PORT}`);
+
+  // Test outbound internet connectivity on startup
+  try {
+    const axios = require('axios');
+    const testRes = await axios.get('https://codeforces.com/api/user.info?handles=tourist', { timeout: 6000 });
+    if (testRes.data?.status === 'OK') {
+      console.log('Outbound internet connection verified: successfully reached external APIs (Codeforces status 200 OK)');
+    }
+  } catch (netErr) {
+    console.warn('Outbound internet connectivity warning:', netErr.message);
+  }
 });
+

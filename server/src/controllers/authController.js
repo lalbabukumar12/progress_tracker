@@ -1,10 +1,11 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Student = require('../models/Student');
 
-// Helper to generate JWT Token with isAdmin in payload
+// Helper to generate JWT Token
 const generateToken = (user) => {
   return jwt.sign(
-    { id: user._id, isAdmin: Boolean(user.isAdmin) },
+    { id: user._id },
     process.env.JWT_SECRET || 'supersecretjwtkey_progress_tracker_2026',
     { expiresIn: '30d' }
   );
@@ -42,6 +43,30 @@ const registerUser = async (req, res) => {
     });
 
     if (user) {
+      // Automatically create a Student document tied to this user
+      const generatedRoll = `ROLL-${user._id.toString().slice(-6).toUpperCase()}`;
+      let rollNumber = generatedRoll;
+      const existingRoll = await Student.findOne({ rollNumber });
+      if (existingRoll) {
+        rollNumber = `ROLL-${Date.now().toString().slice(-6)}`;
+      }
+
+      await Student.create({
+        userId: user._id,
+        name: user.username,
+        rollNumber,
+        dob: null,
+        college: '',
+        branch: '',
+        section: '',
+        leetcodeUsername: '',
+        codeforcesUsername: '',
+        githubUsername: '',
+        gfgUsername: '',
+        codechefUsername: '',
+        problemsSolved: 0,
+      });
+
       const token = generateToken(user);
       res.status(201).json({
         token,
@@ -49,7 +74,6 @@ const registerUser = async (req, res) => {
           id: user._id,
           username: user.username,
           email: user.email,
-          isAdmin: Boolean(user.isAdmin),
         },
       });
     } else {
@@ -86,7 +110,6 @@ const loginUser = async (req, res) => {
           id: user._id,
           username: user.username,
           email: user.email,
-          isAdmin: Boolean(user.isAdmin),
         },
       });
     } else {

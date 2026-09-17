@@ -90,11 +90,30 @@ export default function Dashboard() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
+  const [currentUser, setCurrentUser] = useState(null);
+
   // Platform Connector Modal state
   const [activePlatformModal, setActivePlatformModal] = useState(null);
   const [modalUsername, setModalUsername] = useState('');
   const [modalError, setModalError] = useState(null);
   const [savingPlatform, setSavingPlatform] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('user');
+    if (saved) {
+      try {
+        setCurrentUser(JSON.parse(saved));
+      } catch {
+        setCurrentUser(null);
+      }
+    }
+  }, []);
+
+  const isOwner = Boolean(
+    currentUser &&
+    student &&
+    (String(currentUser.id || currentUser._id) === String(student.userId))
+  );
 
   const fetchStudentData = async () => {
     setLoading(true);
@@ -159,6 +178,7 @@ export default function Dashboard() {
   };
 
   const openPlatformModal = (platformKey) => {
+    if (!isOwner) return;
     setActivePlatformModal(platformKey);
     setModalUsername(student?.[PLATFORMS[platformKey]?.field] || '');
     setModalError(null);
@@ -173,7 +193,7 @@ export default function Dashboard() {
 
   const handleSavePlatform = async (e) => {
     if (e) e.preventDefault();
-    if (!activePlatformModal) return;
+    if (!activePlatformModal || !isOwner) return;
 
     const platformConfig = PLATFORMS[activePlatformModal];
     if (!platformConfig) return;
@@ -190,15 +210,18 @@ export default function Dashboard() {
 
     try {
       const token = localStorage.getItem('token');
-      const headers = { 'Content-Type': 'application/json' };
-      if (token) headers['Authorization'] = `Bearer ${token}`;
+      if (!token) throw new Error('Authentication required');
 
-      const updateRes = await fetch(`http://localhost:5000/api/students/${studentId}/platform-username`, {
-        method: 'PATCH',
+      const headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      };
+
+      const updateRes = await fetch('http://localhost:5000/api/students/me', {
+        method: 'PUT',
         headers,
         body: JSON.stringify({
-          platform: activePlatformModal,
-          username: trimmedUsername,
+          [platformConfig.field]: trimmedUsername,
         }),
       });
 
@@ -209,11 +232,11 @@ export default function Dashboard() {
 
       toast.success(`${platformConfig.name} username updated!`, { id: toastId });
       closePlatformModal();
-      setStudent(updatedData);
+      setStudent((prev) => ({ ...prev, ...updatedData }));
 
       const refreshToast = toast.loading(`Refreshing ${platformConfig.name} statistics...`);
       try {
-        const refreshRes = await fetch(`http://localhost:5000/api/students/${studentId}/refresh-stats`, {
+        const refreshRes = await fetch(`http://localhost:5000/api/students/${student._id}/refresh-stats`, {
           method: 'POST',
           headers,
         });
@@ -445,25 +468,27 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* Header Row Platform Usernames with Edit Icons */}
+          {/* Header Row Platform Usernames with Edit Icons for Owner */}
           <div className="flex items-center gap-3 text-xs font-mono text-[#8A7FA3] flex-wrap pt-1">
             <span>
               LeetCode:{' '}
               {student.leetcodeUsername ? (
                 <span className="inline-flex items-center gap-1">
                   <strong className="text-[#D97706]">{student.leetcodeUsername}</strong>
-                  <button
-                    type="button"
-                    onClick={() => openPlatformModal('leetcode')}
-                    className="text-[#8A7FA3] hover:text-[#D97706] transition-colors p-0.5 rounded hover:bg-[#FAF8FE] cursor-pointer"
-                    title="Edit LeetCode username"
-                  >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                    </svg>
-                  </button>
+                  {isOwner && (
+                    <button
+                      type="button"
+                      onClick={() => openPlatformModal('leetcode')}
+                      className="text-[#8A7FA3] hover:text-[#D97706] transition-colors p-0.5 rounded hover:bg-[#FAF8FE] cursor-pointer"
+                      title="Edit LeetCode username"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    </button>
+                  )}
                 </span>
-              ) : (
+              ) : isOwner ? (
                 <button
                   type="button"
                   onClick={() => openPlatformModal('leetcode')}
@@ -471,6 +496,8 @@ export default function Dashboard() {
                 >
                   Not provided
                 </button>
+              ) : (
+                <span className="text-[#8A7FA3] italic">Not provided</span>
               )}
             </span>
             <span className="text-[#E0D4F7]">•</span>
@@ -479,18 +506,20 @@ export default function Dashboard() {
               {student.codeforcesUsername ? (
                 <span className="inline-flex items-center gap-1">
                   <strong className="text-[#E74C3C]">{student.codeforcesUsername}</strong>
-                  <button
-                    type="button"
-                    onClick={() => openPlatformModal('codeforces')}
-                    className="text-[#8A7FA3] hover:text-[#E74C3C] transition-colors p-0.5 rounded hover:bg-[#FAF8FE] cursor-pointer"
-                    title="Edit Codeforces username"
-                  >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                    </svg>
-                  </button>
+                  {isOwner && (
+                    <button
+                      type="button"
+                      onClick={() => openPlatformModal('codeforces')}
+                      className="text-[#8A7FA3] hover:text-[#E74C3C] transition-colors p-0.5 rounded hover:bg-[#FAF8FE] cursor-pointer"
+                      title="Edit Codeforces username"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    </button>
+                  )}
                 </span>
-              ) : (
+              ) : isOwner ? (
                 <button
                   type="button"
                   onClick={() => openPlatformModal('codeforces')}
@@ -498,6 +527,8 @@ export default function Dashboard() {
                 >
                   Not provided
                 </button>
+              ) : (
+                <span className="text-[#8A7FA3] italic">Not provided</span>
               )}
             </span>
             <span className="text-[#E0D4F7]">•</span>
@@ -506,18 +537,20 @@ export default function Dashboard() {
               {student.githubUsername ? (
                 <span className="inline-flex items-center gap-1">
                   <strong className="text-[#2B2438]">{student.githubUsername}</strong>
-                  <button
-                    type="button"
-                    onClick={() => openPlatformModal('github')}
-                    className="text-[#8A7FA3] hover:text-[#2B2438] transition-colors p-0.5 rounded hover:bg-[#FAF8FE] cursor-pointer"
-                    title="Edit GitHub username"
-                  >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                    </svg>
-                  </button>
+                  {isOwner && (
+                    <button
+                      type="button"
+                      onClick={() => openPlatformModal('github')}
+                      className="text-[#8A7FA3] hover:text-[#2B2438] transition-colors p-0.5 rounded hover:bg-[#FAF8FE] cursor-pointer"
+                      title="Edit GitHub username"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    </button>
+                  )}
                 </span>
-              ) : (
+              ) : isOwner ? (
                 <button
                   type="button"
                   onClick={() => openPlatformModal('github')}
@@ -525,6 +558,8 @@ export default function Dashboard() {
                 >
                   Not provided
                 </button>
+              ) : (
+                <span className="text-[#8A7FA3] italic">Not provided</span>
               )}
             </span>
             <span className="text-[#E0D4F7]">•</span>
@@ -533,18 +568,20 @@ export default function Dashboard() {
               {student.gfgUsername ? (
                 <span className="inline-flex items-center gap-1">
                   <strong className="text-[#27AE60]">{student.gfgUsername}</strong>
-                  <button
-                    type="button"
-                    onClick={() => openPlatformModal('gfg')}
-                    className="text-[#8A7FA3] hover:text-[#27AE60] transition-colors p-0.5 rounded hover:bg-[#FAF8FE] cursor-pointer"
-                    title="Edit GeeksforGeeks username"
-                  >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                    </svg>
-                  </button>
+                  {isOwner && (
+                    <button
+                      type="button"
+                      onClick={() => openPlatformModal('gfg')}
+                      className="text-[#8A7FA3] hover:text-[#27AE60] transition-colors p-0.5 rounded hover:bg-[#FAF8FE] cursor-pointer"
+                      title="Edit GeeksforGeeks username"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    </button>
+                  )}
                 </span>
-              ) : (
+              ) : isOwner ? (
                 <button
                   type="button"
                   onClick={() => openPlatformModal('gfg')}
@@ -552,6 +589,8 @@ export default function Dashboard() {
                 >
                   Not provided
                 </button>
+              ) : (
+                <span className="text-[#8A7FA3] italic">Not provided</span>
               )}
             </span>
             <span className="text-[#E0D4F7]">•</span>
@@ -560,18 +599,20 @@ export default function Dashboard() {
               {student.codechefUsername ? (
                 <span className="inline-flex items-center gap-1">
                   <strong className="text-[#D97706]">{student.codechefUsername}</strong>
-                  <button
-                    type="button"
-                    onClick={() => openPlatformModal('codechef')}
-                    className="text-[#8A7FA3] hover:text-[#D97706] transition-colors p-0.5 rounded hover:bg-[#FAF8FE] cursor-pointer"
-                    title="Edit CodeChef username"
-                  >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                    </svg>
-                  </button>
+                  {isOwner && (
+                    <button
+                      type="button"
+                      onClick={() => openPlatformModal('codechef')}
+                      className="text-[#8A7FA3] hover:text-[#D97706] transition-colors p-0.5 rounded hover:bg-[#FAF8FE] cursor-pointer"
+                      title="Edit CodeChef username"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    </button>
+                  )}
                 </span>
-              ) : (
+              ) : isOwner ? (
                 <button
                   type="button"
                   onClick={() => openPlatformModal('codechef')}
@@ -579,6 +620,8 @@ export default function Dashboard() {
                 >
                   Not provided
                 </button>
+              ) : (
+                <span className="text-[#8A7FA3] italic">Not provided</span>
               )}
             </span>
           </div>

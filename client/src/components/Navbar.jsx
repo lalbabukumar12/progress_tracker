@@ -140,14 +140,6 @@ export default function Navbar() {
               Profile
             </NavLink>
           )}
-          <NavLink 
-            to="/about" 
-            className={({ isActive }) => 
-              isActive ? "text-[#7C4DFF] font-bold" : "text-[#8A7FA3] hover:text-[#2B2438] transition-colors"
-            }
-          >
-            About
-          </NavLink>
 
           {user ? (
             <div className="flex items-center gap-3 pl-4 border-l border-[#E0D4F7]">
@@ -237,13 +229,6 @@ export default function Navbar() {
               Profile
             </NavLink>
           )}
-          <NavLink 
-            to="/about" 
-            onClick={() => setMobileMenuOpen(false)}
-            className="text-[#8A7FA3] hover:text-[#7C4DFF] py-1 font-medium"
-          >
-            About
-          </NavLink>
 
           {user ? (
             <div className="pt-2 border-t border-[#E0D4F7] flex items-center justify-between">

@@ -9,72 +9,7 @@ const { getCodechefStats } = require('../services/codechefService');
 const { computeCompositeScore } = require('../services/scoringService');
 const { getDisplayName } = require('../utils/studentUtils');
 
-// @desc    Create a new student
-// @route   POST /api/students
-// @access  Public
-const createStudent = async (req, res) => {
-  try {
-    const {
-      name,
-      rollNumber,
-      dob,
-      college,
-      branch,
-      section,
-      leetcodeUsername,
-      codeforcesUsername,
-      githubUsername,
-      gfgUsername,
-      codechefUsername,
-    } = req.body;
 
-    if (!name || !rollNumber) {
-      return res.status(400).json({ message: 'Name and roll number are required' });
-    }
-
-    const existingStudent = await Student.findOne({ rollNumber });
-    if (existingStudent) {
-      return res.status(400).json({ message: `Student with roll number '${rollNumber}' already exists` });
-    }
-
-    let parsedDob = null;
-    if (dob) {
-      parsedDob = new Date(dob);
-      if (isNaN(parsedDob.getTime()) || parsedDob >= new Date()) {
-        return res.status(400).json({ message: 'Date of birth must be a valid past date' });
-      }
-    }
-
-    const studentData = {
-      name,
-      rollNumber,
-      dob: parsedDob,
-      college: college || '',
-      branch: branch || '',
-      section: section || '',
-      leetcodeUsername: leetcodeUsername || '',
-      codeforcesUsername: codeforcesUsername || '',
-      githubUsername: githubUsername || '',
-      gfgUsername: gfgUsername || '',
-      codechefUsername: codechefUsername || '',
-      problemsSolved: 0,
-    };
-
-    if (req.user) {
-      studentData.userId = req.user._id;
-    }
-
-    const student = await Student.create(studentData);
-    const displayName = getDisplayName(student);
-
-    res.status(201).json({
-      ...student.toPublicJSON(),
-      displayName,
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message || 'Server error creating student' });
-  }
-};
 
 // @desc    Get all students with their latest stats snapshots (Excludes dob, adds disambiguated displayName)
 // @route   GET /api/students
@@ -341,85 +276,46 @@ const getStudentById = async (req, res) => {
   }
 };
 
-// @desc    Update student by ID
-// @route   PUT /api/students/:id
-// @access  Public
-const updateStudent = async (req, res) => {
-  try {
-    const {
-      name,
-      rollNumber,
-      dob,
-      college,
-      branch,
-      section,
-      leetcodeUsername,
-      codeforcesUsername,
-      githubUsername,
-      gfgUsername,
-      codechefUsername,
-    } = req.body;
-
-    const student = await Student.findById(req.params.id);
-    if (!student) {
-      return res.status(404).json({ message: 'Student not found' });
-    }
-
-    if (rollNumber && rollNumber !== student.rollNumber) {
-      const existing = await Student.findOne({ rollNumber });
-      if (existing) {
-        return res.status(400).json({ message: `Roll number '${rollNumber}' is already in use` });
-      }
-    }
-
-    if (dob !== undefined) {
-      const parsedDob = new Date(dob);
-      if (isNaN(parsedDob.getTime()) || parsedDob >= new Date()) {
-        return res.status(400).json({ message: 'Date of birth must be a valid past date' });
-      }
-      student.dob = parsedDob;
-    }
-
-    student.name = name !== undefined ? name : student.name;
-    student.rollNumber = rollNumber !== undefined ? rollNumber : student.rollNumber;
-    student.college = college !== undefined ? college : student.college;
-    student.branch = branch !== undefined ? branch : student.branch;
-    student.section = section !== undefined ? section : student.section;
-    student.leetcodeUsername = leetcodeUsername !== undefined ? leetcodeUsername : student.leetcodeUsername;
-    student.codeforcesUsername = codeforcesUsername !== undefined ? codeforcesUsername : student.codeforcesUsername;
-    student.githubUsername = githubUsername !== undefined ? githubUsername : student.githubUsername;
-    student.gfgUsername = gfgUsername !== undefined ? gfgUsername : student.gfgUsername;
-    student.codechefUsername = codechefUsername !== undefined ? codechefUsername : student.codechefUsername;
-
-    const updatedStudent = await student.save();
-    const displayName = getDisplayName(updatedStudent);
-
-    res.status(200).json({
-      ...updatedStudent.toPublicJSON(),
-      displayName,
-    });
-  } catch (error) {
-    if (error.kind === 'ObjectId') {
-      return res.status(400).json({ message: 'Invalid student ID format' });
-    }
-    res.status(500).json({ message: error.message || 'Server error updating student' });
-  }
-};
 
 
-// @desc    Increment local practice problemsSolved counter for a student
-// @route   PATCH /api/students/:id/increment-solved
-// @access  Public
+
+// @desc    Increment local practice problemsSolved counter for the logged-in student
+// @route   PATCH /api/students/increment-solved
+// @access  Private
 const incrementProblemsSolved = async (req, res) => {
   try {
-    const student = await Student.findByIdAndUpdate(
-      req.params.id,
-      { $inc: { problemsSolved: 1 } },
-      { new: true }
-    );
+    if (!req.user) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
+    let student = await Student.findOne({ userId: req.user._id });
 
     if (!student) {
-      return res.status(404).json({ message: 'Student not found' });
+      const generatedRoll = `ROLL-${req.user._id.toString().slice(-6).toUpperCase()}`;
+      let rollNumber = generatedRoll;
+      const existingRoll = await Student.findOne({ rollNumber });
+      if (existingRoll) {
+        rollNumber = `ROLL-${Date.now().toString().slice(-6)}`;
+      }
+
+      student = await Student.create({
+        userId: req.user._id,
+        name: req.user.username,
+        rollNumber,
+        dob: null,
+        college: '',
+        branch: '',
+        section: '',
+        leetcodeUsername: '',
+        codeforcesUsername: '',
+        githubUsername: '',
+        gfgUsername: '',
+        codechefUsername: '',
+        problemsSolved: 1,
+      });
+    } else {
+      student.problemsSolved = (student.problemsSolved || 0) + 1;
+      await student.save();
     }
 
     const displayName = getDisplayName(student);
@@ -433,9 +329,6 @@ const incrementProblemsSolved = async (req, res) => {
       },
     });
   } catch (error) {
-    if (error.kind === 'ObjectId') {
-      return res.status(400).json({ message: 'Invalid student ID format' });
-    }
     res.status(500).json({ message: error.message || 'Server error updating problems solved count' });
   }
 };
@@ -564,144 +457,7 @@ const refreshStudentStats = async (req, res) => {
   }
 };
 
-// @desc    Admin edit student profile
-// @route   PUT /api/students/:id/admin-edit
-// @access  Private/Admin
-const adminEditStudent = async (req, res) => {
-  try {
-    if (!req.user || !req.user.isAdmin) {
-      return res.status(403).json({ message: 'Forbidden: Admin access required' });
-    }
 
-    const student = await Student.findById(req.params.id);
-    if (!student) {
-      return res.status(404).json({ message: 'Student not found' });
-    }
-
-    const {
-      name,
-      college,
-      branch,
-      section,
-      leetcodeUsername,
-      codeforcesUsername,
-      githubUsername,
-      gfgUsername,
-      codechefUsername,
-    } = req.body;
-
-    const needsRefresh = {
-      leetcode: false,
-      codeforces: false,
-      github: false,
-      gfg: false,
-      codechef: false,
-    };
-
-    if (name !== undefined) student.name = name;
-    if (college !== undefined) student.college = college;
-    if (branch !== undefined) student.branch = branch;
-    if (section !== undefined) student.section = section;
-
-    if (leetcodeUsername !== undefined && leetcodeUsername.trim() !== student.leetcodeUsername) {
-      student.leetcodeUsername = leetcodeUsername.trim();
-      needsRefresh.leetcode = true;
-    }
-
-    if (codeforcesUsername !== undefined && codeforcesUsername.trim() !== student.codeforcesUsername) {
-      student.codeforcesUsername = codeforcesUsername.trim();
-      needsRefresh.codeforces = true;
-    }
-
-    if (githubUsername !== undefined && githubUsername.trim() !== student.githubUsername) {
-      student.githubUsername = githubUsername.trim();
-      needsRefresh.github = true;
-    }
-
-    if (gfgUsername !== undefined && gfgUsername.trim() !== student.gfgUsername) {
-      student.gfgUsername = gfgUsername.trim();
-      needsRefresh.gfg = true;
-    }
-
-    if (codechefUsername !== undefined && codechefUsername.trim() !== student.codechefUsername) {
-      student.codechefUsername = codechefUsername.trim();
-      needsRefresh.codechef = true;
-    }
-
-    const updatedStudent = await student.save();
-    const displayName = getDisplayName(updatedStudent);
-
-    res.status(200).json({
-      ...updatedStudent.toObject(),
-      displayName,
-      needsRefresh,
-    });
-  } catch (error) {
-    if (error.kind === 'ObjectId') {
-      return res.status(400).json({ message: 'Invalid student ID format' });
-    }
-    res.status(500).json({ message: error.message || 'Server error updating profile as admin' });
-  }
-};
-
-// @desc    Delete single student by ID (Admin Only)
-// @route   DELETE /api/students/:id
-// @access  Private/Admin
-const deleteStudent = async (req, res) => {
-  try {
-
-
-    const student = await Student.findById(req.params.id);
-    if (!student) {
-      return res.status(404).json({ message: 'Student not found' });
-    }
-
-    // Cascade deletion of StatsSnapshot records
-    await StatsSnapshot.deleteMany({ studentId: student._id });
-
-    // Delete Student document
-    await Student.findByIdAndDelete(req.params.id);
-
-    res.status(200).json({
-      message: 'Student and related stats snapshots deleted successfully',
-      id: req.params.id,
-    });
-  } catch (error) {
-    if (error.kind === 'ObjectId') {
-      return res.status(400).json({ message: 'Invalid student ID format' });
-    }
-    res.status(500).json({ message: error.message || 'Server error deleting student profile' });
-  }
-};
-
-// @desc    Bulk delete student profiles by IDs (Admin Only)
-// @route   POST /api/students/bulk-delete
-// @access  Private/Admin
-const bulkDeleteStudents = async (req, res) => {
-  try {
-    if (!req.user || !req.user.isAdmin) {
-      return res.status(403).json({ message: 'Forbidden: Admin access required' });
-    }
-
-    const { ids } = req.body;
-    if (!Array.isArray(ids) || ids.length === 0) {
-      return res.status(400).json({ message: 'Array of student IDs is required for bulk deletion' });
-    }
-
-    // Cascade delete all matching StatsSnapshots
-    await StatsSnapshot.deleteMany({ studentId: { $in: ids } });
-
-    // Delete matching Student documents
-    const result = await Student.deleteMany({ _id: { $in: ids } });
-
-    res.status(200).json({
-      message: `${result.deletedCount} student profile(s) deleted successfully`,
-      deletedCount: result.deletedCount,
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message || 'Server error during bulk deletion' });
-  }
-};
 
 // @desc    Compare two students and get their profiles & latest stats snapshots
 // @route   GET /api/students/compare?a=id1&b=id2
@@ -864,17 +620,12 @@ const getMonthlyTopPerformers = async (req, res) => {
 };
 
 module.exports = {
-  createStudent,
   getAllStudents,
   getMyStudentProfile,
   updateMyStudentProfile,
   getStudentById,
-  updateStudent,
   incrementProblemsSolved,
   refreshStudentStats,
-  adminEditStudent,
-  deleteStudent,
-  bulkDeleteStudents,
   compareStudents,
   getMonthlyTopPerformers,
 };

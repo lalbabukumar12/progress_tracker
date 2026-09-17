@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Editor from '@monaco-editor/react';
 import toast from 'react-hot-toast';
 
@@ -14,25 +14,6 @@ export default function IDE() {
   const [stdin, setStdin] = useState('');
   const [output, setOutput] = useState(null);
   const [executing, setExecuting] = useState(false);
-
-  // Student selection and practice solver states
-  const [students, setStudents] = useState([]);
-  const [selectedStudentId, setSelectedStudentId] = useState('');
-  const [markingSolved, setMarkingSolved] = useState(false);
-
-  useEffect(() => {
-    fetch('http://localhost:5000/api/students')
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setStudents(data);
-          if (data.length > 0) {
-            setSelectedStudentId(data[0]._id);
-          }
-        }
-      })
-      .catch((err) => console.error('Failed to load students for IDE:', err));
-  }, []);
 
   const handleLanguageChange = (newLang) => {
     setLanguage(newLang);
@@ -87,31 +68,29 @@ export default function IDE() {
     }
   };
 
-  const handleMarkAsSolved = async () => {
-    if (!selectedStudentId) {
-      toast.error('Please select or create a student profile first.');
+  const handleDownloadCode = () => {
+    if (!code || !code.trim()) {
+      toast.error('Nothing to download');
       return;
     }
 
-    setMarkingSolved(true);
-    const toastId = toast.loading('Recording solved problem...');
+    const filenameMap = {
+      python: 'main.py',
+      cpp: 'main.cpp',
+      java: 'Main.java',
+    };
 
-    try {
-      const res = await fetch(`http://localhost:5000/api/students/${selectedStudentId}/increment-solved`, {
-        method: 'PATCH',
-      });
-
-      if (!res.ok) {
-        throw new Error('Failed to increment solved counter');
-      }
-
-      const data = await res.json();
-      toast.success(`Marked as Solved! Total Practice Problems: ${data.problemsSolved}`, { id: toastId });
-    } catch (err) {
-      toast.error(err.message || 'Error marking problem as solved', { id: toastId });
-    } finally {
-      setMarkingSolved(false);
-    }
+    const filename = filenameMap[language] || `main.${language}`;
+    const blob = new Blob([code], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success(`Downloaded ${filename}`);
   };
 
   return (
@@ -128,24 +107,6 @@ export default function IDE() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          {/* Active Student Selector */}
-          {students.length > 0 && (
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <label className="text-xs font-semibold text-[#8A7FA3]">Student:</label>
-              <select
-                value={selectedStudentId}
-                onChange={(e) => setSelectedStudentId(e.target.value)}
-                className="bg-[#FAF8FE] border border-[#E0D4F7] text-[#2B2438] text-xs font-semibold rounded-xl px-3 py-2 focus:outline-none focus:border-[#7C4DFF] cursor-pointer flex-1 sm:flex-initial"
-              >
-                {students.map((s) => (
-                  <option key={s._id} value={s._id}>
-                    {s.name} ({s.rollNumber})
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
           {/* Language Selector */}
           <select
             value={language}
@@ -177,20 +138,11 @@ export default function IDE() {
             </button>
 
             <button
-              onClick={handleMarkAsSolved}
-              disabled={markingSolved || !selectedStudentId}
+              onClick={handleDownloadCode}
+              disabled={!code || !code.trim()}
               className="flex-1 sm:flex-initial px-4 py-2 bg-[#27AE60] hover:bg-[#219653] disabled:opacity-50 text-white font-semibold text-xs rounded-xl shadow-sm shadow-[#27AE60]/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:cursor-not-allowed"
             >
-              {markingSolved ? (
-                <>
-                  <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  Mark as Solved
-                </>
-              )}
+              <span>⬇</span> Download
             </button>
           </div>
         </div>

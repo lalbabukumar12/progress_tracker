@@ -2,16 +2,12 @@
   "name": "progress-tracker-root",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "client",
-    "server"
-  ],
   "scripts": {
     "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
     "dev:client": "npm run dev --prefix client",
     "dev:server": "npm run dev --prefix server",
-    "build": "npm run build --prefix client",
-    "build:client": "npm run build --prefix client",
+    "build": "npm --prefix client install && npm --prefix client run build",
+    "build:client": "npm --prefix client install && npm --prefix client run build",
     "install:all": "npm install --prefix server && npm install --prefix client"
   },
   "devDependencies": {

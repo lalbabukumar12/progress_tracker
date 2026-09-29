@@ -193,9 +193,6 @@ npm run dev
 
 ## By--
 
-<!-- - **Krishna Gupta**
-- **Kushagra Mishra**
-- **Gyanendra Singh** -->
 - **Lalbabu Kumar**
 
 ---

@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { useTheme } from '../context/ThemeContext';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -295,6 +296,33 @@ export default function Dashboard() {
   const gfg = stats?.gfg;
   const codechef = stats?.codechef;
 
+  const { theme } = useTheme();
+
+  // Dynamic Chart.js styling tokens based on active theme
+  const chartColors = useMemo(() => {
+    if (theme === 'light') {
+      return {
+        grid: 'rgba(224, 212, 247, 0.6)',
+        ticks: '#6B6B6B',
+        text: '#1B1B1B',
+        muted: '#6B6B6B',
+        tooltipBg: '#FFFFFF',
+        tooltipBorder: '#E0D4F7',
+        doughnutBorder: '#FFFFFF',
+      };
+    }
+    // Dark mode (default)
+    return {
+      grid: 'rgba(255, 255, 255, 0.08)',
+      ticks: '#A0A0A0',
+      text: '#EDEDED',
+      muted: '#A0A0A0',
+      tooltipBg: '#1E1E1E',
+      tooltipBorder: '#2E2E34',
+      doughnutBorder: '#1E1E1E',
+    };
+  }, [theme]);
+
   // Codeforces Rating Trajectory Line Chart
   const cfHistory = codeforces?.ratingHistory || [];
   const lineChartData = {
@@ -324,10 +352,10 @@ export default function Dashboard() {
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: '#FFFFFF',
-        titleColor: '#2B2438',
-        bodyColor: '#8A7FA3',
-        borderColor: '#E0D4F7',
+        backgroundColor: chartColors.tooltipBg,
+        titleColor: chartColors.text,
+        bodyColor: chartColors.muted,
+        borderColor: chartColors.tooltipBorder,
         borderWidth: 1,
         padding: 10,
         displayColors: false,
@@ -343,12 +371,12 @@ export default function Dashboard() {
     },
     scales: {
       x: {
-        grid: { color: 'rgba(224, 212, 247, 0.6)' },
-        ticks: { color: '#8A7FA3', font: { size: 10 }, maxTicksLimit: 8 },
+        grid: { color: chartColors.grid },
+        ticks: { color: chartColors.ticks, font: { size: 10 }, maxTicksLimit: 8 },
       },
       y: {
-        grid: { color: 'rgba(224, 212, 247, 0.6)' },
-        ticks: { color: '#8A7FA3', font: { size: 10 } },
+        grid: { color: chartColors.grid },
+        ticks: { color: chartColors.ticks, font: { size: 10 } },
       },
     },
   };
@@ -363,8 +391,8 @@ export default function Dashboard() {
           leetcode?.mediumSolved || 0,
           leetcode?.hardSolved || 0,
         ],
-        backgroundColor: ['#27AE60', '#F39C12', '#E74C3C'], // Green, Amber, Red
-        borderColor: '#FFFFFF',
+        backgroundColor: ['#27AE60', '#F39C12', '#E74C3C'], // Green, Amber, Red (preserve status colors)
+        borderColor: chartColors.doughnutBorder,
         borderWidth: 3,
         hoverOffset: 4,
       },
@@ -379,18 +407,18 @@ export default function Dashboard() {
       legend: {
         position: 'bottom',
         labels: {
-          color: '#2B2438',
+          color: chartColors.text,
           font: { size: 11 },
           padding: 12,
           usePointStyle: true,
         },
       },
       tooltip: {
-        backgroundColor: '#FFFFFF',
-        borderColor: '#E0D4F7',
+        backgroundColor: chartColors.tooltipBg,
+        borderColor: chartColors.tooltipBorder,
         borderWidth: 1,
-        bodyColor: '#2B2438',
-        titleColor: '#2B2438',
+        bodyColor: chartColors.text,
+        titleColor: chartColors.text,
       },
     },
   };
@@ -416,21 +444,21 @@ export default function Dashboard() {
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: '#FFFFFF',
-        borderColor: '#E0D4F7',
+        backgroundColor: chartColors.tooltipBg,
+        borderColor: chartColors.tooltipBorder,
         borderWidth: 1,
-        titleColor: '#2B2438',
-        bodyColor: '#8A7FA3',
+        titleColor: chartColors.text,
+        bodyColor: chartColors.muted,
       },
     },
     scales: {
       x: {
         grid: { display: false },
-        ticks: { color: '#8A7FA3', font: { size: 10 } },
+        ticks: { color: chartColors.ticks, font: { size: 10 } },
       },
       y: {
-        grid: { color: 'rgba(224, 212, 247, 0.6)' },
-        ticks: { color: '#8A7FA3', font: { size: 10 }, stepSize: 1 },
+        grid: { color: chartColors.grid },
+        ticks: { color: chartColors.ticks, font: { size: 10 }, stepSize: 1 },
       },
     },
   };

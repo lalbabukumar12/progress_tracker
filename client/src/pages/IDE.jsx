@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Editor from '@monaco-editor/react';
 import toast from 'react-hot-toast';
+import { useTheme } from '../context/ThemeContext';
 
 const STARTER_SNIPPETS = {
   python: `# Python 3 Starter Code\nprint("Hello World!")\n`,
@@ -9,6 +10,7 @@ const STARTER_SNIPPETS = {
 };
 
 export default function IDE() {
+  const { theme } = useTheme();
   const [language, setLanguage] = useState('python');
   const [code, setCode] = useState(STARTER_SNIPPETS.python);
   const [stdin, setStdin] = useState('');
@@ -160,7 +162,7 @@ export default function IDE() {
             <Editor
               height="400px"
               language={language === 'cpp' ? 'cpp' : language === 'python' ? 'python' : 'java'}
-              theme="vs"
+              theme={theme === 'light' ? 'vs' : 'vs-dark'}
               value={code}
               onChange={(value) => setCode(value || '')}
               options={{

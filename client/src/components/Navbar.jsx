@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
+import ThemeSwitcher from './ThemeSwitcher';
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
@@ -62,13 +63,17 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Mobile Hamburger Toggle */}
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden text-[#8A7FA3] hover:text-[#2B2438] text-xl p-1 focus:outline-none cursor-pointer"
-        >
-          {mobileMenuOpen ? '✕' : '☰'}
-        </button>
+        {/* Mobile Action Controls */}
+        <div className="flex items-center gap-2 md:hidden">
+          <ThemeSwitcher compact={true} />
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+            className="text-[#8A7FA3] hover:text-[#2B2438] text-xl p-1.5 focus:outline-none cursor-pointer rounded-lg border border-transparent hover:border-[#E0D4F7]"
+          >
+            {mobileMenuOpen ? '✕' : '☰'}
+          </button>
+        </div>
 
         {/* Desktop Navigation Links */}
         <div className="hidden md:flex items-center gap-6 text-sm font-medium">
@@ -141,28 +146,31 @@ export default function Navbar() {
             </NavLink>
           )}
 
-          {user ? (
-            <div className="flex items-center gap-3 pl-4 border-l border-[#E0D4F7]">
-              <Link to="/profile" className="text-xs font-mono text-[#2B2438] bg-[#E8DEFB] hover:bg-[#DED0F7] px-3 py-1 rounded-full border border-[#C9B6F0] transition-colors shadow-xs">
-                {user.username}
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="text-xs text-[#E74C3C] hover:text-[#DC2626] font-semibold cursor-pointer transition-colors"
-              >
-                Logout
-              </button>
-            </div>
-          ) : (
-            <div className="pl-4 border-l border-[#E0D4F7]">
+          {/* User Status, Theme Switcher & Auth */}
+          <div className="flex items-center gap-3 pl-4 border-l border-[#E0D4F7]">
+            <ThemeSwitcher />
+
+            {user ? (
+              <div className="flex items-center gap-3">
+                <Link to="/profile" className="text-xs font-mono text-[#2B2438] bg-[#E8DEFB] hover:bg-[#DED0F7] px-3 py-1 rounded-full border border-[#C9B6F0] transition-colors shadow-xs">
+                  {user.username}
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="text-xs text-[#E74C3C] hover:text-[#DC2626] font-semibold cursor-pointer transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
               <NavLink
                 to="/login"
                 className="px-3.5 py-1.5 bg-[#7C4DFF] hover:bg-[#6C3CE9] text-white font-semibold text-xs rounded-xl shadow-sm shadow-[#7C4DFF]/25 transition-all"
               >
                 Login / Register
               </NavLink>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
@@ -230,29 +238,34 @@ export default function Navbar() {
             </NavLink>
           )}
 
-          {user ? (
-            <div className="pt-2 border-t border-[#E0D4F7] flex items-center justify-between">
-              <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="text-xs font-mono text-[#2B2438] bg-[#E8DEFB] px-3 py-1 rounded-full border border-[#C9B6F0]">
-                {user.username}
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="text-xs text-[#E74C3C] hover:text-[#DC2626] font-semibold cursor-pointer"
-              >
-                Logout
-              </button>
+          <div className="pt-3 border-t border-[#E0D4F7] flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-[#8A7FA3] font-medium">Theme:</span>
+              <ThemeSwitcher compact={true} />
             </div>
-          ) : (
-            <div className="pt-2 border-t border-[#E0D4F7]">
+
+            {user ? (
+              <div className="flex items-center gap-2">
+                <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="text-xs font-mono text-[#2B2438] bg-[#E8DEFB] px-3 py-1 rounded-full border border-[#C9B6F0]">
+                  {user.username}
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="text-xs text-[#E74C3C] hover:text-[#DC2626] font-semibold cursor-pointer"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
               <NavLink
                 to="/login"
                 onClick={() => setMobileMenuOpen(false)}
-                className="inline-block w-full text-center py-2 bg-[#7C4DFF] hover:bg-[#6C3CE9] text-white font-semibold text-xs rounded-xl shadow-sm shadow-[#7C4DFF]/25"
+                className="px-4 py-1.5 bg-[#7C4DFF] hover:bg-[#6C3CE9] text-white font-semibold text-xs rounded-xl shadow-sm shadow-[#7C4DFF]/25"
               >
                 Login / Register
               </NavLink>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
     </nav>

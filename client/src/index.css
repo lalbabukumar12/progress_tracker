@@ -1,39 +1,122 @@
 @import "tailwindcss";
 
-:root {
-  --bg-primary: #F3EFFB;
+/* ----------------------------------------------------
+   Two-Way Theme System (CSS Custom Properties)
+   Scoped to [data-theme] on the root element (:root / html)
+   ---------------------------------------------------- */
+
+:root,
+[data-theme="dark"] {
+  /* DARK MODE (Default) */
+  --bg-primary: #121212;
+  --bg-card: #1E1E1E;
+  --bg-card-hover: #262626;
+  --bg-surface: #181818;
+  --bg-input: #26262B;
+  --bg-input-focus: #2E2E34;
+  --bg-badge: #2D263D;
+  --bg-badge-hover: #382F4D;
+  --border-card: #2E2E34;
+  --border-subtle: #27272C;
+  --border-muted: #383842;
+  --border-badge: #4B3F68;
+  --text-main: #EDEDED;
+  --text-muted: #A0A0A0;
+  --text-subtle: #75757E;
+  --navbar-bg: rgba(26, 26, 28, 0.92);
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --toast-bg: #1E1E1E;
+  --toast-text: #EDEDED;
+  --toast-border: #2E2E34;
+
+  /* Chart Colors */
+  --chart-grid: rgba(255, 255, 255, 0.08);
+  --chart-ticks: #A0A0A0;
+  --chart-tooltip-bg: #1E1E1E;
+  --chart-tooltip-text: #EDEDED;
+  --chart-tooltip-muted: #A0A0A0;
+  --chart-tooltip-border: #2E2E34;
+  --chart-doughnut-border: #1E1E1E;
+
+  /* Scrollbars */
+  --scrollbar-track: #121212;
+  --scrollbar-thumb: #35353D;
+  --scrollbar-thumb-hover: #7C4DFF;
+
+  /* Accents & Status (Preserved across themes) */
+  --accent-primary: #7C4DFF;
+  --accent-hover: #6C3CE9;
+  --accent-secondary: #4B3F68;
+  --accent-secondary-bg: #2D263D;
+  --success: #27AE60;
+  --warning: #F39C12;
+  --error: #E74C3C;
+}
+
+[data-theme="light"] {
+  /* LIGHT MODE */
+  --bg-primary: #FAFAFA;
   --bg-card: #FFFFFF;
   --bg-card-hover: #FAF8FE;
-  --bg-surface: #EFEAFB;
-  --bg-elevated: #FFFFFF;
+  --bg-surface: #F3EFFB;
+  --bg-input: #FAF8FE;
+  --bg-input-focus: #FFFFFF;
+  --bg-badge: #E8DEFB;
+  --bg-badge-hover: #DED0F7;
   --border-card: #E0D4F7;
   --border-subtle: #EBE3F8;
   --border-muted: #E5DBF5;
+  --border-badge: #C9B6F0;
+  --text-main: #1B1B1B;
+  --text-muted: #6B6B6B;
+  --text-subtle: #8A7FA3;
+  --navbar-bg: rgba(255, 255, 255, 0.95);
+  --shadow-color: rgba(124, 77, 255, 0.08);
+  --toast-bg: #FFFFFF;
+  --toast-text: #1B1B1B;
+  --toast-border: #E0D4F7;
+
+  /* Chart Colors */
+  --chart-grid: rgba(224, 212, 247, 0.6);
+  --chart-ticks: #6B6B6B;
+  --chart-tooltip-bg: #FFFFFF;
+  --chart-tooltip-text: #1B1B1B;
+  --chart-tooltip-muted: #6B6B6B;
+  --chart-tooltip-border: #E0D4F7;
+  --chart-doughnut-border: #FFFFFF;
+
+  /* Scrollbars */
+  --scrollbar-track: #FAFAFA;
+  --scrollbar-thumb: #C9B6F0;
+  --scrollbar-thumb-hover: #7C4DFF;
+
+  /* Accents & Status */
   --accent-primary: #7C4DFF;
   --accent-hover: #6C3CE9;
   --accent-secondary: #C9B6F0;
   --accent-secondary-bg: #E8DEFB;
-  --text-main: #2B2438;
-  --text-muted: #8A7FA3;
-  --text-subtle: #A297BD;
   --success: #27AE60;
-  --success-bg: rgba(39, 174, 96, 0.12);
-  --success-border: rgba(39, 174, 96, 0.3);
   --warning: #F39C12;
-  --warning-bg: rgba(243, 156, 18, 0.12);
-  --warning-border: rgba(243, 156, 18, 0.3);
   --error: #E74C3C;
-  --error-bg: rgba(231, 76, 60, 0.12);
-  --error-border: rgba(231, 76, 60, 0.3);
 }
 
-body {
-  background-color: #F3EFFB;
-  color: #2B2438;
+/* ----------------------------------------------------
+   Base Document & Elements Styling
+   ---------------------------------------------------- */
+
+html, body {
+  background-color: var(--bg-primary);
+  color: var(--text-main);
   min-height: 100vh;
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Smooth theme transitions */
+nav, main, section, div, header, input, select, textarea, button, table, tr, th, td {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
 /* Custom Scrollbars */
@@ -43,14 +126,127 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #F3EFFB;
+  background: var(--scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #C9B6F0;
+  background: var(--scrollbar-thumb);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #7C4DFF;
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* ----------------------------------------------------
+   Centralized CSS Variable Utility Class Mappings
+   Allows all components across the app to inherit theme colors
+   ---------------------------------------------------- */
+
+/* Page & Container Backgrounds */
+.bg-\[\#F3EFFB\],
+.bg-page {
+  background-color: var(--bg-primary) !important;
+}
+
+/* Cards & Panels */
+.bg-white,
+.bg-card {
+  background-color: var(--bg-card) !important;
+}
+
+/* Navigation bar */
+nav.bg-white\/95,
+nav.bg-white {
+  background-color: var(--navbar-bg) !important;
+}
+
+/* Secondary & Input Backgrounds */
+.bg-\[\#FAF8FE\],
+.bg-input {
+  background-color: var(--bg-input) !important;
+}
+
+/* Hover States for Cards & Items */
+.hover\:bg-\[\#FAF8FE\]:hover {
+  background-color: var(--bg-card-hover) !important;
+}
+
+.hover\:bg-\[\#F3EFFB\]:hover {
+  background-color: var(--bg-card-hover) !important;
+}
+
+.hover\:bg-white:hover {
+  background-color: var(--bg-card) !important;
+}
+
+/* Badges & Chips */
+.bg-\[\#E8DEFB\],
+.bg-badge {
+  background-color: var(--bg-badge) !important;
+}
+
+.hover\:bg-\[\#E8DEFB\]:hover {
+  background-color: var(--bg-badge) !important;
+}
+
+.hover\:bg-\[\#DED0F7\]:hover,
+.hover\:bg-\[\#C9B6F0\]:hover {
+  background-color: var(--bg-badge-hover) !important;
+}
+
+/* Typography Colors */
+.text-\[\#2B2438\],
+.text-main {
+  color: var(--text-main) !important;
+}
+
+.hover\:text-\[\#2B2438\]:hover {
+  color: var(--text-main) !important;
+}
+
+.text-\[\#8A7FA3\],
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+.placeholder-\[\#8A7FA3\]::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.text-\[\#A297BD\],
+.text-subtle {
+  color: var(--text-subtle) !important;
+}
+
+/* Borders */
+.border-\[\#E0D4F7\],
+.border-\[\#EBE3F8\],
+.border-\[\#E5DBF5\],
+.border-card {
+  border-color: var(--border-card) !important;
+}
+
+.border-b-\[\#E0D4F7\],
+.border-t-\[\#E0D4F7\],
+.border-l-\[\#E0D4F7\],
+.border-r-\[\#E0D4F7\] {
+  border-color: var(--border-card) !important;
+}
+
+.border-\[\#C9B6F0\],
+.border-badge {
+  border-color: var(--border-badge) !important;
+}
+
+.divide-\[\#E0D4F7\] > :not([hidden]) ~ :not([hidden]),
+.divide-\[\#E0D4F7\]\/60 > :not([hidden]) ~ :not([hidden]),
+.divide-\[\#EBE3F8\] > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border-subtle) !important;
+}
+
+/* Selection */
+::selection {
+  background-color: rgba(124, 77, 255, 0.35);
+  color: var(--text-main);
 }

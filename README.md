@@ -3,8 +3,9 @@
 > A unified full-stack platform for aggregating, comparing, and tracking competitive programming and open-source progress across LeetCode, Codeforces, GeeksforGeeks, CodeChef, and GitHub.
 
 ---
-
+## LIVE LINK   https://progresstracker-o25esbunh-lalbabukumar12.vercel.app/
 ## 🚀 Features
+
 
 - **Multi-Platform Sync**: Aggregates live student progress across **LeetCode**, **Codeforces**, **GeeksforGeeks**, **CodeChef**, and **GitHub**. Each platform scraper and API client runs in an isolated, fault-tolerant worker so that network failures on one platform never disrupt others.
 - **My Dashboard**: Comprehensive personal analytics featuring interactive Chart.js visualizations — including Codeforces rating trajectory line graphs, LeetCode difficulty breakdown doughnut charts, and GitHub top repository star metrics.

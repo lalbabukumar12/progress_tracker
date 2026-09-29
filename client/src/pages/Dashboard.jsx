@@ -263,6 +263,33 @@ export default function Dashboard() {
     fetchStudentData();
   }, [studentId]);
 
+  const { theme } = useTheme();
+
+  // Dynamic Chart.js styling tokens based on active theme
+  const chartColors = useMemo(() => {
+    if (theme === 'light') {
+      return {
+        grid: 'rgba(224, 212, 247, 0.6)',
+        ticks: '#6B6B6B',
+        text: '#1B1B1B',
+        muted: '#6B6B6B',
+        tooltipBg: '#FFFFFF',
+        tooltipBorder: '#E0D4F7',
+        doughnutBorder: '#FFFFFF',
+      };
+    }
+    // Dark mode (default)
+    return {
+      grid: 'rgba(255, 255, 255, 0.08)',
+      ticks: '#A0A0A0',
+      text: '#EDEDED',
+      muted: '#A0A0A0',
+      tooltipBg: '#1E1E1E',
+      tooltipBorder: '#2E2E34',
+      doughnutBorder: '#1E1E1E',
+    };
+  }, [theme]);
+
   if (loading) {
     return <DashboardSkeleton />;
   }
@@ -295,33 +322,6 @@ export default function Dashboard() {
   const github = stats?.github;
   const gfg = stats?.gfg;
   const codechef = stats?.codechef;
-
-  const { theme } = useTheme();
-
-  // Dynamic Chart.js styling tokens based on active theme
-  const chartColors = useMemo(() => {
-    if (theme === 'light') {
-      return {
-        grid: 'rgba(224, 212, 247, 0.6)',
-        ticks: '#6B6B6B',
-        text: '#1B1B1B',
-        muted: '#6B6B6B',
-        tooltipBg: '#FFFFFF',
-        tooltipBorder: '#E0D4F7',
-        doughnutBorder: '#FFFFFF',
-      };
-    }
-    // Dark mode (default)
-    return {
-      grid: 'rgba(255, 255, 255, 0.08)',
-      ticks: '#A0A0A0',
-      text: '#EDEDED',
-      muted: '#A0A0A0',
-      tooltipBg: '#1E1E1E',
-      tooltipBorder: '#2E2E34',
-      doughnutBorder: '#1E1E1E',
-    };
-  }, [theme]);
 
   // Codeforces Rating Trajectory Line Chart
   const cfHistory = codeforces?.ratingHistory || [];

@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import MultiSelectDropdown from '../components/MultiSelectDropdown';
+import { API_BASE_URL } from '../config/api';
 
 export default function Home() {
   const [students, setStudents] = useState([]);
@@ -15,7 +16,7 @@ export default function Home() {
   const fetchStudents = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/students');
+      const res = await fetch(`${API_BASE_URL}/api/students`);
       if (res.ok) {
         const data = await res.json();
         setStudents(data);

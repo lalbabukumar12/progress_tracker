@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { API_BASE_URL } from '../config/api';
 
 export default function Leaderboard() {
   const [students, setStudents] = useState([]);
@@ -15,8 +16,8 @@ export default function Leaderboard() {
     setError(null);
     try {
       const [studentsRes, monthlyRes] = await Promise.all([
-        fetch('http://localhost:5000/api/students'),
-        fetch('http://localhost:5000/api/monthly-top-performers').catch(() => null),
+        fetch(`${API_BASE_URL}/api/students`),
+        fetch(`${API_BASE_URL}/api/monthly-top-performers`).catch(() => null),
       ]);
 
       if (!studentsRes.ok) throw new Error(`Failed to load leaderboard data (Status: ${studentsRes.status})`);

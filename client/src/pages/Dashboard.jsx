@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useTheme } from '../context/ThemeContext';
+import { API_BASE_URL } from '../config/api';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -120,7 +121,7 @@ export default function Dashboard() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`http://localhost:5000/api/students/${studentId}`);
+      const res = await fetch(`${API_BASE_URL}/api/students/${studentId}`);
       if (!res.ok) {
         if (res.status === 404) throw new Error('Student profile not found');
         throw new Error(`Failed to load student data (Status: ${res.status})`);
@@ -145,7 +146,7 @@ export default function Dashboard() {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const res = await fetch(`http://localhost:5000/api/students/${studentId}/refresh-stats`, {
+      const res = await fetch(`${API_BASE_URL}/api/students/${studentId}/refresh-stats`, {
         method: 'POST',
         headers,
       });
@@ -218,7 +219,7 @@ export default function Dashboard() {
         Authorization: `Bearer ${token}`
       };
 
-      const updateRes = await fetch('http://localhost:5000/api/students/me', {
+      const updateRes = await fetch(`${API_BASE_URL}/api/students/me`, {
         method: 'PUT',
         headers,
         body: JSON.stringify({
@@ -237,7 +238,7 @@ export default function Dashboard() {
 
       const refreshToast = toast.loading(`Refreshing ${platformConfig.name} statistics...`);
       try {
-        const refreshRes = await fetch(`http://localhost:5000/api/students/${student._id}/refresh-stats`, {
+        const refreshRes = await fetch(`${API_BASE_URL}/api/students/${student._id}/refresh-stats`, {
           method: 'POST',
           headers,
         });

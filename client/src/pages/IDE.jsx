@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Editor from '@monaco-editor/react';
 import toast from 'react-hot-toast';
 import { useTheme } from '../context/ThemeContext';
+import { API_BASE_URL } from '../config/api';
 
 const STARTER_SNIPPETS = {
   python: `# Python 3 Starter Code\nprint("Hello World!")\n`,
@@ -35,7 +36,7 @@ export default function IDE() {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const res = await fetch('http://localhost:5000/api/execute', {
+      const res = await fetch(`${API_BASE_URL}/api/execute`, {
         method: 'POST',
         headers,
         body: JSON.stringify({ language, code, stdin }),

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { API_BASE_URL } from '../config/api';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ export default function Profile() {
     }
 
     try {
-      const res = await fetch('http://localhost:5000/api/students/me', {
+      const res = await fetch(`${API_BASE_URL}/api/students/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -109,7 +110,7 @@ export default function Profile() {
     const token = localStorage.getItem('token');
 
     try {
-      const res = await fetch('http://localhost:5000/api/students/me', {
+      const res = await fetch(`${API_BASE_URL}/api/students/me`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -135,7 +136,7 @@ export default function Profile() {
       if (leetcodeChanged || codeforcesChanged || githubChanged || gfgChanged || codechefChanged) {
         const refreshToast = toast.loading('Fetching updated platform stats...');
         try {
-          await fetch(`http://localhost:5000/api/students/${studentId}/refresh-stats`, {
+          await fetch(`${API_BASE_URL}/api/students/${studentId}/refresh-stats`, {
             method: 'POST',
             headers: { Authorization: `Bearer ${token}` },
           });

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import toast from 'react-hot-toast';
+import { API_BASE_URL } from '../config/api';
 
 export default function Chat() {
   const [messages, setMessages] = useState([]);
@@ -38,7 +39,7 @@ export default function Chat() {
     // 1. Fetch initial message history
     const fetchHistory = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/chat/history?room=general&limit=50');
+        const res = await fetch(`${API_BASE_URL}/api/chat/history?room=general&limit=50`);
         if (res.ok) {
           const data = await res.json();
           setMessages(data.messages || []);
@@ -54,7 +55,7 @@ export default function Chat() {
     fetchHistory();
 
     // 2. Initialize Socket.IO connection
-    const socket = io('http://localhost:5000', {
+    const socket = io(API_BASE_URL, {
       auth: { token },
       transports: ['websocket', 'polling'],
       reconnectionAttempts: 5,

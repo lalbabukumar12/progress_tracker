@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import ThemeSwitcher from './ThemeSwitcher';
+import { API_BASE_URL } from '../config/api';
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
@@ -17,7 +18,7 @@ export default function Navbar() {
         setUser(JSON.parse(savedUser));
 
         // Fetch logged in user's student profile ID
-        const res = await fetch('http://localhost:5000/api/students/me', {
+        const res = await fetch(`${API_BASE_URL}/api/students/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {

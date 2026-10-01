@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { API_BASE_URL } from '../config/api';
 
 // Helper component for searchable student selector
 function StudentSearchDropdown({
@@ -258,7 +259,7 @@ export default function Compare() {
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/students');
+        const res = await fetch(`${API_BASE_URL}/api/students`);
         if (res.ok) {
           const data = await res.json();
           setAllStudents(data);
@@ -307,7 +308,7 @@ export default function Compare() {
       setError(null);
       try {
         const res = await fetch(
-          `http://localhost:5000/api/students/compare?a=${studentAId}&b=${studentBId}`
+          `${API_BASE_URL}/api/students/compare?a=${studentAId}&b=${studentBId}`
         );
         const data = await res.json();
         if (!res.ok) {

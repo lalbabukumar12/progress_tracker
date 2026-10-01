@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
+import { API_BASE_URL } from '../config/api';
 
 export default function Contests() {
   const [contests, setContests] = useState([]);
@@ -16,7 +17,7 @@ export default function Contests() {
     setError(null);
 
     try {
-      const url = `http://localhost:5000/api/contests/upcoming${forceRefresh ? '?refresh=true' : ''}`;
+      const url = `${API_BASE_URL}/api/contests/upcoming${forceRefresh ? '?refresh=true' : ''}`;
       const res = await fetch(url);
       if (!res.ok) {
         throw new Error(`Failed to load contest schedule (Status: ${res.status})`);

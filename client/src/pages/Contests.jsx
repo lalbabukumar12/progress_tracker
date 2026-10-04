@@ -63,13 +63,21 @@ export default function Contests() {
     });
   }, [contests, selectedPlatform, searchQuery]);
 
-  // Group contests by Start Date (Calendar day)
+  // Helper to get local date key (YYYY-MM-DD in user's local timezone)
+  const getLocalDateKey = (d) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // Group contests by Start Date (Local Calendar day)
   const groupedContests = useMemo(() => {
     const groups = {};
     filteredContests.forEach((contest) => {
       if (!contest.startTime) return;
       const dateObj = new Date(contest.startTime);
-      const dateKey = dateObj.toISOString().split('T')[0]; // 'YYYY-MM-DD'
+      const dateKey = getLocalDateKey(dateObj);
 
       if (!groups[dateKey]) {
         groups[dateKey] = {
@@ -102,15 +110,13 @@ export default function Contests() {
     return `${hours}h ${remainingMins}m`;
   };
 
-  // Format header dates
+  // Format header dates using local calendar day difference
   const formatDayHeader = (dateObj) => {
     const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
-    const targetStr = dateObj.toISOString().split('T')[0];
+    const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+    const targetMidnight = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate()).getTime();
 
-    const diffDays = Math.round(
-      (new Date(targetStr) - new Date(todayStr)) / (1000 * 60 * 60 * 24)
-    );
+    const diffDays = Math.round((targetMidnight - todayMidnight) / (1000 * 60 * 60 * 24));
 
     const formattedDate = dateObj.toLocaleDateString('en-US', {
       weekday: 'long',
